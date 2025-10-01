@@ -17,9 +17,9 @@ function App() {
 
   return (
     <Router>
+      <Landing/>
       <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/about" element={<Aboutus />} />
+        <Route exact path="/about" element={<Aboutus/>}/>
       </Routes>
     </Router>
   )
