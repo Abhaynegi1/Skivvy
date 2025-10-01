@@ -1,5 +1,5 @@
 export const navLinks = [
-    {id: "about", title: "About us"},
-    {id: "community", title:"Community"},
-    {id:"notifications", title:"notifications"}
+    {id: "teach", title: "Teach"},
+    {id: "learn", title:"Learn"},
+    {id:"community", title:"Community"}
 ]

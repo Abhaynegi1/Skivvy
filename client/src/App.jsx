@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react'
 import { runConnectionTests } from './utils/api'
 import Landing from './pages/Landing'
+import Teach from './pages/Teach';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
-import Aboutus from './assets/Aboutus';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 function App() {
   useEffect(() => {
@@ -17,10 +18,12 @@ function App() {
 
   return (
     <Router>
-      <Landing/>
+      <Header/>
       <Routes>
-        <Route exact path="/about" element={<Aboutus/>}/>
+        <Route exact path="/home" element={<Landing/>}></Route>
+        <Route exact path="/teach" element={<Teach/>}></Route>
       </Routes>
+      <Footer/>
     </Router>
   )
 }
