@@ -20,8 +20,9 @@ function App() {
     <Router>
       <Header/>
       <Routes>
-        <Route exact path="/home" element={<Landing/>}></Route>
-        <Route exact path="/teach" element={<Teach/>}></Route>
+        <Route exact path="/" element={<Landing/>}/>
+        <Route exact path="/home" element={<Landing/>}/>
+        <Route exact path="/teach" element={<Teach/>}/>
       </Routes>
       <Footer/>
     </Router>
