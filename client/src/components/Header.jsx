@@ -1,7 +1,13 @@
 import React from "react";
-import { navLinks } from "../assets/NavLinks";
 import { Link } from "react-router-dom";
 const Header = () => {
+  const navLinks = [
+    {id: "teach", title: "Teach"},
+    {id: "learn", title:"Learn"},
+    {id:"community", title:"Community"}
+  ]
+
+
   return (
     <nav className="flex items-center justify-between p-5 bg-white px-10">
       <Link className="text-3xl font-bold text-orange-400" to="/home">Skivvy</Link>

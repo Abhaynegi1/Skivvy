@@ -4,7 +4,42 @@
 
 
 .hero-bg{
-    background-image: url('../public/ChatGPT\ Image\ Oct\ 1\,\ 2025\,\ 07_50_19\ PM.png');
+    background-image: url('../ChatGPT\ Image\ Oct\ 1\,\ 2025\,\ 07_50_19\ PM.png');
     background-size: contain;
     background-position: center;
+}
+
+@layer utilities{
+    .card{
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        border-radius: 1.5rem;
+        width: 25rem;
+        height: 40rem;
+        overflow: hidden;
+    }
+}
+
+.review-1{
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-image: url('/profile-1.png');
+    background-size: cover;
+    background-position: top;
+}
+.review-2{
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-image: url('/profile-2.png');
+    background-size: cover;
+    background-position: top;
+}
+.review-3{
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-image: url('/profile-3.png');
+    background-size: cover;
+    background-position: top;
 }
