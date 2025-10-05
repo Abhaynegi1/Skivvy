@@ -13,8 +13,8 @@ const Landing = () => {
 
   return (
     <>  
-    <div className="hero-container flex items-center justify-center relative">
-      <div className="absolute w-4/5 h-[80vh] hero-bg rounded-3xl m-10 p-20 opacity-30"></div>
+    <div className=" flex items-center justify-center relative">
+      <div className="hero-container absolute w-4/5 h-[80vh] hero-bg rounded-3xl m-10 p-20 opacity-30"></div>
       <div className="absolute w-4/5 h-[80vh] rounded-3xl m-10 p-20 bg-black opacity-75"></div>
       <div className="hero w-4/5 h-[80vh] text-center flex-col text-4xl font-bold rounded-3xl m-10 p-20 relative z-10">
         <h1 className="text-orange-400 text-8xl ">Exchange skills, unlock potential</h1>

@@ -1,11 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 const Header = () => {
   const navLinks = [
     {id: "teach", title: "Teach"},
     {id: "learn", title:"Learn"},
     {id:"community", title:"Community"}
   ]
+
+  const navigate = useNavigate();
 
 
   return (
@@ -18,8 +21,8 @@ const Header = () => {
           </li>
         ))}
         <div className="flex gap-3">
-          <button className="bg-orange-400 hover:bg-white hover:text-orange-400 duration-300 text-white py-2 px-4 font-bold rounded-2xl">Sign up</button>
-          <button className="bg-blue-100 hover:text-orange-400 duration-300 hover:bg-white font-bold py-2 px-4 rounded-2xl">Login</button>
+          <button onClick={()=>navigate('/Profile')} className="bg-orange-400 hover:bg-white hover:text-orange-400 duration-300 text-white py-2 px-4 font-bold rounded-2xl">Sign up</button>
+          <button onClick={()=>navigate('/Login')} className="bg-blue-100 hover:text-orange-400 duration-300 hover:bg-white font-bold py-2 px-4 rounded-2xl">Login</button>
         </div>
       </ul>
     </nav>

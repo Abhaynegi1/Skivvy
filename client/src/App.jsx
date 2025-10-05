@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { runConnectionTests } from './utils/api'
 import Landing from './pages/Landing'
 import Teach from './pages/Teach';
+import Login from './pages/Login';
+import Profile from './pages/Profile'
 import {
   BrowserRouter as Router,
   Routes,
@@ -23,6 +25,8 @@ function App() {
         <Route exact path="/" element={<Landing/>}/>
         <Route exact path="/home" element={<Landing/>}/>
         <Route exact path="/teach" element={<Teach/>}/>
+        <Route exact path="/Login" element={<Login/>}/>
+        <Route exact path='/Profile' element={<Profile/>}/>
       </Routes>
       <Footer/>
     </Router>
