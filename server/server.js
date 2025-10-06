@@ -8,8 +8,24 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS Configuration
+const allowedOrigins = [
+  'http://localhost:5173', // React dev server (Vite)
+  'http://localhost:3000', // React dev server (Create React App)
+  'https://skivvy.vercel.app', // Production frontend (update with your actual Vercel domain)
+  'https://abhay-singh-negis.vercel.app' // Replace with your actual Vercel domain
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'], // React dev server ports
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -42,4 +58,6 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 API URL: http://localhost:${PORT}`);
 });
