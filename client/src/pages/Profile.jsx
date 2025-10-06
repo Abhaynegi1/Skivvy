@@ -67,7 +67,7 @@ const Profile = () => {
 
   return (
 
-    <div className="bg-orange-100 min-h-screen p-5 gap-10 grid grid-cols-4 grid-rows-5 place-items-stretch ">
+    <div className="bg-orange-100 min-h-screen p-5 gap-10 grid grid-cols-4 grid-rows-5 place-items-stretch mt-20">
       {/* <div className="profile-container p-2 grid-flow-rows gap-4">
         <img src={p1} alt="p1" className="w-52 h-52 rounded-full"/>
       </div> */}
@@ -166,7 +166,13 @@ const Profile = () => {
             </>
           )}
       </div>
-      <div className="item3 bg-white rounded-3xl col-span-3 row-span-3"></div>
+
+{/* FEATURED WORK */}
+      <div className="item3 bg-white rounded-3xl col-span-3 row-span-3">
+
+
+      </div>
+
       <div className="item4 bg-white rounded-3xl col-span-3 p-3">
         <h1 className="text-3xl mt-4 ml-4 font-semibold">About {user?.username || 'This User'}</h1>
         {loading ? (
