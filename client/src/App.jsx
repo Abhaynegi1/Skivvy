@@ -3,6 +3,7 @@ import { runConnectionTests } from './utils/api'
 import Landing from './pages/Landing'
 import Teach from './pages/Teach';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Profile from './pages/Profile'
 import {
   BrowserRouter as Router,
@@ -25,7 +26,8 @@ function App() {
         <Route exact path="/" element={<Landing/>}/>
         <Route exact path="/home" element={<Landing/>}/>
         <Route exact path="/teach" element={<Teach/>}/>
-        <Route exact path="/Login" element={<Login/>}/>
+        <Route exact path="/login" element={<Login/>}/>
+        <Route exact path="/signup" element={<Signup/>}/>
         <Route exact path='/Profile' element={<Profile/>}/>
       </Routes>
       <Footer/>

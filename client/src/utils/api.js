@@ -34,4 +34,66 @@ export const runConnectionTests = async () => {
   await testHealthEndpoint();
   
   console.log('🏁 Connection tests completed');
+};
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
+
+// Auth API functions
+export const authAPI = {
+  // Register new user
+  register: async (userData) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
+    return response.json();
+  },
+
+  // Login user
+  login: async (credentials) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials)
+    });
+    return response.json();
+  },
+
+  // Get user profile
+  getProfile: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    return response.json();
+  },
+
+  // Logout (client-side only)
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+
+  // Check if user is authenticated
+  isAuthenticated: () => {
+    return !!localStorage.getItem('token');
+  },
+
+  // Get current user from localStorage
+  getCurrentUser: () => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
 }; 

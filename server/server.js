@@ -24,12 +24,15 @@ connectDB();
 
 // Routes
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to MellowRoom API' });
+  res.json({ message: 'Welcome to Skivvy API' });
 });
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
+
+// Auth routes
+app.use('/api/auth', require('./routes/auth'));
 
 // Error handling
 app.use((err, req, res, next) => {
