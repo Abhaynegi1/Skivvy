@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://skivvy-backend.onrender.com' 
+  : 'http://localhost:5000';
 
 // Test backend connection
 export const testBackendConnection = async () => {

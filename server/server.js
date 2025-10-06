@@ -11,8 +11,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173', // React dev server (Vite)
   'http://localhost:3000', // React dev server (Create React App)
-  'https://skivvy.vercel.app', // Production frontend (update with your actual Vercel domain)
-  'https://abhay-singh-negis.vercel.app' // Replace with your actual Vercel domain
+  'https://skivvy.vercel.app' // Your actual Vercel domain
 ];
 
 app.use(cors({
