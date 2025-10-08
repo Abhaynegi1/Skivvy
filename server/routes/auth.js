@@ -1,7 +1,48 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const User = require('../models/User');
 const router = express.Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'uploads/profile-pictures';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check MIME type first (more reliable)
+    if (file.mimetype.startsWith('image/')) {
+      return cb(null, true);
+    }
+    
+    // Fallback to extension check
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    
+    if (extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
 
 // JWT Secret (in production, use environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -145,13 +186,18 @@ router.get('/profile', verifyToken, async (req, res) => {
       });
     }
 
+    const profileCompletion = user.getProfileCompletion();
+
     res.json({
       success: true,
       user: {
         id: user._id,
         username: user.username,
+        displayName: user.displayName,
         email: user.email,
-        createdAt: user.createdAt
+        profile: user.profile,
+        createdAt: user.createdAt,
+        profileCompletion
       }
     });
 
@@ -160,6 +206,126 @@ router.get('/profile', verifyToken, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Server error'
+    });
+  }
+});
+
+// Update user profile (protected route)
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { bio, skillsOffered, skillsSeeking, location, profileImage, displayName } = req.body;
+    
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Update profile fields
+    if (bio !== undefined) user.profile.bio = bio;
+    if (skillsOffered !== undefined) user.profile.skillsOffered = skillsOffered;
+    if (skillsSeeking !== undefined) user.profile.skillsSeeking = skillsSeeking;
+    if (location !== undefined) user.profile.location = location;
+    if (profileImage !== undefined) user.profile.profileImage = profileImage;
+    if (displayName !== undefined) user.displayName = displayName;
+
+    // Check if profile is complete
+    const profileCompletion = user.getProfileCompletion();
+    user.profile.isProfileComplete = profileCompletion.isComplete;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        username: user.username,
+        displayName: user.displayName,
+        email: user.email,
+        profile: user.profile,
+        createdAt: user.createdAt,
+        profileCompletion
+      }
+    });
+
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
+// Upload profile picture (protected route)
+router.post('/profile/picture', verifyToken, upload.single('profilePicture'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    console.log('Uploaded file:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      filename: req.file.filename
+    });
+
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Delete old profile picture if exists
+    if (user.profile.profileImage) {
+      const oldImagePath = path.join('uploads/profile-pictures', path.basename(user.profile.profileImage));
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    // Update profile image path
+    user.profile.profileImage = `/uploads/profile-pictures/${req.file.filename}`;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Profile picture uploaded successfully',
+      profileImage: user.profile.profileImage
+    });
+
+  } catch (error) {
+    console.error('Profile picture upload error:', error);
+    
+    // Handle multer errors specifically
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'File too large. Maximum size is 5MB.'
+      });
+    }
+    
+    if (error.message === 'Only image files are allowed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only image files are allowed'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Server error during upload'
     });
   }
 });

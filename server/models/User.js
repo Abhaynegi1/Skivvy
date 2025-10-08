@@ -23,6 +23,38 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
+  displayName: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'Display name cannot exceed 50 characters']
+  },
+  // Profile completion fields
+  profile: {
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio cannot exceed 500 characters']
+    },
+    skillsOffered: [{
+      type: String,
+      trim: true
+    }],
+    skillsSeeking: [{
+      type: String,
+      trim: true
+    }],
+    profileImage: {
+      type: String,
+      default: null
+    },
+    location: {
+      type: String,
+      trim: true
+    },
+    isProfileComplete: {
+      type: Boolean,
+      default: false
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -45,6 +77,27 @@ userSchema.pre('save', async function(next) {
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// Calculate profile completion percentage
+userSchema.methods.getProfileCompletion = function() {
+  const fields = [
+    this.profile.bio,
+    this.profile.skillsOffered && this.profile.skillsOffered.length > 0,
+    this.profile.skillsSeeking && this.profile.skillsSeeking.length > 0,
+    this.profile.location,
+    this.profile.profileImage
+  ];
+  
+  const completedFields = fields.filter(field => field && field !== '').length;
+  const completionPercentage = Math.round((completedFields / fields.length) * 100);
+  
+  return {
+    percentage: completionPercentage,
+    completedFields,
+    totalFields: fields.length,
+    isComplete: completionPercentage >= 80 // Consider 80% as complete
+  };
 };
 
 module.exports = mongoose.model('User', userSchema);

@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5000;
 // CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173', // React dev server (Vite)
+  'http://localhost:5174', // React dev server (Vite - alternative port)
   'http://localhost:3000', // React dev server (Create React App)
   'https://skivvy.vercel.app' // Your actual Vercel domain
 ];
@@ -33,6 +34,9 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files (profile pictures)
+app.use('/uploads', express.static('uploads'));
 
 // MongoDB Connection
 connectDB();
