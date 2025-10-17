@@ -1,28 +1,23 @@
 import React from "react";
 import { User, ArrowRightFromLine } from "lucide-react";
 
-const Profile = ({ name, ss, so }) => {
+const Profiles = ({ name, ss, so }) => {
   return (
     <div className="profile">
       <User className="size-20 bg-orange-200 rounded-full p-2" />
-      <div className="info px-3 ">
+      <div className="info px-3">
         <button><h1 className="text-xl font-normal">{name}</h1></button>
-        <p>
-          Skills offering: <mark>{so}</mark>,
+        <div className="offering flex items-center gap-4 py-2">
+          <p>Offered: 
+          <button className='border-2 p-1 border-orange-400 rounded-full hover:bg-orange-400 hover:text-white duration-150'>{so}</button>
         </p>
-        <p className="py-1">
-          Skills Seeking: <mark>{ss}</mark>
+        <p>Seeking: 
+          <button className='border-2 border-orange-400 p-1 rounded-full hover:bg-orange-400 hover:text-white duration-150'>{ss}</button>
         </p>
-      </div>
-
-      <div className="info2 flex items-center">
-        <div>
-          <p>Rating: 4 star</p>
-          <p>Available time: 3 months</p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Profile;
+export default Profiles;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Funnel, User, ArrowRightFromLine } from "lucide-react";
-import Profile from '../components/Profiles';
+import Profiles from '../components/Profiles';
 
 const FiltersSection = () => {
   const [filters, setFilters] = useState({
@@ -114,7 +114,7 @@ const Learn = () => {
 
         <div className="main mt-2"> 
           {profiles.map((p, index) => (
-            <Profile key={index} name={p.name} so={p.so} ss={p.ss}/>
+            <Profiles key={index} name={p.name} so={p.so} ss={p.ss}/>
           ))}
         </div>
       </div>
