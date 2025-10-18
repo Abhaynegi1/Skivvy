@@ -9,6 +9,8 @@ const Landing = () => {
     { id: 4, title: "Spanish" },
   ];
 
+  
+
   return (
     <>
       <div className="flex items-center justify-center relative mt-20">
