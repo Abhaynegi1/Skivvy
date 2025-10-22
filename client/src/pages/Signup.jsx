@@ -38,9 +38,9 @@ const Signup = () => {
         setFormData({ username: '', email: '', password: '' })
         // Trigger storage event to update header and fetch fresh profile data
         window.dispatchEvent(new Event('storage'))
-        // Redirect to home page after successful signup
+        // Redirect to profile page after successful signup
         setTimeout(() => {
-          navigate('/')
+          navigate('/Profile')
         }, 1500)
       } else {
         setMessage(data.message)

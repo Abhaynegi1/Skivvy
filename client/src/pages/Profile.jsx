@@ -254,7 +254,7 @@ const Profile = () => {
             </button>
           </div>
         )}
-      </div>
+        </div>
       
       {/* FEATURED WORK - Middle Right */}
       <div className="item3 bg-white rounded-3xl col-span-3 row-span-3 shadow-lg">
@@ -263,14 +263,14 @@ const Profile = () => {
           <div className="text-center py-20">
             <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Camera className="w-16 h-16 text-gray-400" />
-            </div>
+          </div>
             <p className="text-gray-500 mb-4 text-lg">Showcase your best work</p>
             <button className="text-orange-600 hover:text-orange-700 font-medium px-6 py-3 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors">
               Add Portfolio
             </button>
           </div>
+          </div>
         </div>
-      </div>
 
       {/* ABOUT SECTION - Bottom Right */}
       <div className="item4 bg-white rounded-3xl col-span-3 shadow-lg p-6">
@@ -286,9 +286,9 @@ const Profile = () => {
             >
               Complete Profile
             </button>
-          </div>
+            </div>
         )}
-      </div>
+        </div>
 
       {/* Edit Profile Modal */}
       {showEditModal && (
@@ -344,9 +344,9 @@ const Profile = () => {
                         placeholder="Where are you located?"
                         className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       />
-                    </div>
-                  </div>
-                </div>
+            </div>
+        </div>
+      </div>
 
                 <div className="flex justify-end gap-3 mt-6">
                   <button
@@ -366,7 +366,7 @@ const Profile = () => {
                   </button>
                 </div>
               </form>
-            </div>
+      </div>
       </div>
       </div>
       )}

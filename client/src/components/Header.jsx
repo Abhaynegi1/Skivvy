@@ -5,8 +5,7 @@ import { authAPI } from "../utils/api";
 
 const Header = () => {
   const navLinks = [
-    { id: "teach", title: "Teach" },
-    { id: "learn", title: "Learn" },
+    { id: "learn", title: "Explore" },
     { id: "community", title: "Community" },
   ];
 
