@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { runConnectionTests } from './utils/api'
-import Landing from './pages/Landing'
-import Explore from './pages/Explore'
+import Landing from './pages/Landing';
+import Explore from './pages/Explore';
+import People from './pages/People';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile'
@@ -26,6 +27,7 @@ function App() {
         <Route exact path="/" element={<Landing/>}/>
         <Route exact path="/home" element={<Landing/>}/>
         <Route exact path="/learn" element={<Explore/>}/>
+        <Route path="/People" element={<People/>}/>
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/signup" element={<Signup/>}/>
         <Route exact path='/Profile' element={<Profile/>}/>

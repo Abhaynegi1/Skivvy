@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Funnel, Search, Star, Clock, Filter, SortAsc, SortDesc, X, Home, BookOpen, User, MapPin, ChevronDown } from "lucide-react";
+import { Navigate, useNavigate } from "react-router-dom";
+import People from "./People";
 
 const Explore = () => {
+  const navigate = useNavigate();
+
   const skills = [
     "Web Development",
     "Writing",
@@ -218,6 +222,10 @@ const Explore = () => {
     return pages;
   };
 
+  const handleGotoPeople = (profile) =>{
+    navigate('/People', { state: { profile } });
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content Area */}
@@ -389,7 +397,7 @@ const Explore = () => {
                     {/* Profile Image */}
                     <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 relative">
                       <span className="text-white font-bold text-lg">
-                        {profile.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                        <button>{profile.name .split(' ').map(n => n[0]).join('').toUpperCase()}</button>
                       </span>
                       {/* Rating Badge */}
                       <div className="absolute -top-2 -left-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
@@ -402,9 +410,12 @@ const Explore = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                          {/* PROFILE BUTTON */}
+                          <button onClick={() => handleGotoPeople(profile)}>
+                            <h4 className="text-lg font-semibold text-gray-900 mb-1">
                             {profile.name}
                           </h4>
+                          </button>
                           <div className="flex items-center gap-1 text-sm text-gray-600 mb-3">
                             <MapPin className="w-4 h-4" />
                             <span>{profile.location}</span>
