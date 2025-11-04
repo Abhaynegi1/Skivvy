@@ -5,7 +5,8 @@ import Explore from './pages/Explore';
 import People from './pages/People';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Profile from './pages/Profile'
+import Profile from './pages/Profile';
+import PortfolioUpload from './pages/PortfolioUpload';
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,6 +32,7 @@ function App() {
         <Route exact path="/login" element={<Login/>}/>
         <Route exact path="/signup" element={<Signup/>}/>
         <Route exact path='/Profile' element={<Profile/>}/>
+        <Route exact path='/portfolio/upload' element={<PortfolioUpload/>}/>
       </Routes>
       <Footer/>
     </Router>

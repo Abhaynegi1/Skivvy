@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   profile: {
     bio: {
       type: String,
-      maxlength: [500, 'Bio cannot exceed 500 characters']
+      maxlength: [150, 'Bio cannot exceed 150 characters']
     },
     skillsOffered: [{
       type: String,
@@ -55,6 +55,20 @@ const userSchema = new mongoose.Schema({
       default: false
     }
   },
+  portfolio: [{
+    image: {
+      type: String,
+      required: true
+    },
+    caption: {
+      type: String,
+      maxlength: [500, 'Caption cannot exceed 500 characters']
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

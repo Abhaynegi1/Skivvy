@@ -79,7 +79,17 @@ export const authAPI = {
       method: 'GET',
       headers: getAuthHeaders()
     });
-    return response.json();
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) {
+      // Token invalid/expired – clear client auth state
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return { success: false, unauthorized: true, message: 'Unauthorized' };
+    }
+    if (!response.ok) {
+      return { success: false, message: data?.message || 'Request failed' };
+    }
+    return data;
   },
 
   // Logout (client-side only)

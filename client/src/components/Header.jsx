@@ -19,29 +19,39 @@ const Header = () => {
   // Fetch user data & auth status
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const authenticated = authAPI.isAuthenticated();
-      setIsAuthenticated(authenticated);
-
-      if (authenticated) {
-        setLoading(true);
-        try {
-          const response = await authAPI.getProfile();
-          if (response.success) {
-            setUser(response.user);
-            localStorage.setItem("user", JSON.stringify(response.user));
-          } else {
-            const cachedUser = authAPI.getCurrentUser();
-            setUser(cachedUser);
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-          const cachedUser = authAPI.getCurrentUser();
-          setUser(cachedUser);
-        } finally {
-          setLoading(false);
-        }
-      } else {
+      const token = localStorage.getItem('token');
+      
+      // If no token, clear everything and show login buttons
+      if (!token) {
+        setIsAuthenticated(false);
         setUser(null);
+        localStorage.removeItem('user'); // Clear any stale user data
+        return;
+      }
+
+      // If token exists, validate it with the server
+      setLoading(true);
+      try {
+        const response = await authAPI.getProfile();
+        if (response.unauthorized || !response.success) {
+          // Token invalid or expired – clear everything and show login buttons
+          setIsAuthenticated(false);
+          setUser(null);
+          authAPI.logout(); // This will clear token and user from localStorage
+        } else if (response.success) {
+          // Valid token and successful profile fetch
+          setIsAuthenticated(true);
+          setUser(response.user);
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // On error, clear everything and show login buttons
+        setIsAuthenticated(false);
+        setUser(null);
+        authAPI.logout();
+      } finally {
+        setLoading(false);
       }
     };
 

@@ -6,7 +6,7 @@ const fs = require('fs');
 const User = require('../models/User');
 const router = express.Router();
 
-// Configure multer for file uploads
+// Configure multer for profile picture uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = 'uploads/profile-pictures';
@@ -18,6 +18,21 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Configure multer for portfolio uploads
+const portfolioStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = 'uploads/portfolio';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'portfolio-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
@@ -33,6 +48,27 @@ const upload = multer({
     }
     
     // Fallback to extension check
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    
+    if (extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+const portfolioUpload = multer({
+  storage: portfolioStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit for portfolio images
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      return cb(null, true);
+    }
+    
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
     
@@ -196,6 +232,7 @@ router.get('/profile', verifyToken, async (req, res) => {
         displayName: user.displayName,
         email: user.email,
         profile: user.profile,
+        portfolio: user.portfolio,
         createdAt: user.createdAt,
         profileCompletion
       }
@@ -313,6 +350,64 @@ router.post('/profile/picture', verifyToken, upload.single('profilePicture'), as
       return res.status(400).json({
         success: false,
         message: 'File too large. Maximum size is 5MB.'
+      });
+    }
+    
+    if (error.message === 'Only image files are allowed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only image files are allowed'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Server error during upload'
+    });
+  }
+});
+
+// Upload portfolio item (protected route)
+router.post('/portfolio', verifyToken, portfolioUpload.single('portfolioImage'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded'
+      });
+    }
+
+    const user = await User.findById(req.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Add portfolio item
+    const portfolioItem = {
+      image: `/uploads/portfolio/${req.file.filename}`,
+      caption: req.body.caption || ''
+    };
+
+    user.portfolio.push(portfolioItem);
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Portfolio item uploaded successfully',
+      portfolioItem: portfolioItem
+    });
+
+  } catch (error) {
+    console.error('Portfolio upload error:', error);
+    
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'File too large. Maximum size is 10MB.'
       });
     }
     

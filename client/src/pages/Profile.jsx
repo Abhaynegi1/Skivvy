@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from "react";
 import { Camera, Code, PenTool, Music2, BookOpenText, Book, User, MapPin, Plus, X, Check, ArrowRight, Edit3, Upload } from "lucide-react";
 import { authAPI } from "../utils/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../components/ProfilePictureUpload";
 
 const Profile = () => {
@@ -17,12 +17,16 @@ const Profile = () => {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
+  const [isEditingBioTop, setIsEditingBioTop] = useState(false);
+  const [bioDraftTop, setBioDraftTop] = useState('');
+  const [savingBio, setSavingBio] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      // Check if user is authenticated
+      // Check if user is authenticated (basic) then validate with API
       if (!authAPI.isAuthenticated()) {
         navigate('/login');
         return;
@@ -33,6 +37,12 @@ const Profile = () => {
 
       try {
         const response = await authAPI.getProfile();
+        if (response.unauthorized) {
+          // Token invalid/expired. Clear and redirect to login.
+          authAPI.logout();
+          navigate('/login');
+          return;
+        }
         if (response.success) {
           setUser(response.user);
           setEditFormData({
@@ -40,6 +50,8 @@ const Profile = () => {
             bio: response.user.profile?.bio || '',
             location: response.user.profile?.location || ''
           });
+          const bio = response.user.profile?.bio || '';
+          setBioDraftTop(bio);
         } else {
           setError('Failed to fetch profile data');
         }
@@ -52,7 +64,7 @@ const Profile = () => {
     };
 
     fetchUserProfile();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const handleProfilePictureConfirm = async (croppedBlob) => {
     setUploading(true);
@@ -97,6 +109,37 @@ const Profile = () => {
       alert('Error updating profile');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Inline bio editing helpers for top section
+  const startBioEditTop = () => {
+    setBioDraftTop((user?.profile?.bio || '').slice(0, 150));
+    setIsEditingBioTop(true);
+  };
+
+  const cancelBioEditTop = () => {
+    setBioDraftTop(user?.profile?.bio || '');
+    setIsEditingBioTop(false);
+  };
+
+  const saveBioEditTop = async () => {
+    const trimmed = (bioDraftTop || '').slice(0, 150).trim();
+    setSavingBio(true);
+    try {
+      const response = await authAPI.updateProfile({ bio: trimmed });
+      if (response.success) {
+        setUser(response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
+        setIsEditingBioTop(false);
+      } else {
+        alert('Failed to update bio');
+      }
+    } catch (e) {
+      console.error('Error updating bio:', e);
+      alert('Error updating bio');
+    } finally {
+      setSavingBio(false);
     }
   };
 
@@ -168,7 +211,6 @@ const Profile = () => {
           <div className="text-center mb-4">
             <h4 className="font-bold text-2xl text-gray-800">{user.displayName || user.username}</h4>
             <p className="text-sm text-gray-600 mb-1">@{user.username}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
             {user.profile?.location && (
               <p className="text-sm text-gray-600 mt-2 flex items-center justify-center gap-1">
                 <MapPin className="w-4 h-4" />
@@ -222,7 +264,7 @@ const Profile = () => {
               >
                 <Book className="text-blue-500 w-4 h-4" />
                 <p className="font-medium text-gray-800">{skill}</p>
-              </div>
+          </div>
             ))
           ) : (
             <div className="text-center py-8 border-2 border-dashed border-blue-200 rounded-lg">
@@ -233,62 +275,116 @@ const Profile = () => {
               >
                 Add Skills
               </button>
-            </div>
+          </div>
           )}
+          </div>
         </div>
-      </div>
 
       {/* SUMMARY CONTAINER - Top Right */}
       <div className="item2 bg-white col-span-3 rounded-3xl shadow-lg p-6">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to {user.displayName || user.username}'s Profile</h1>
-        {user.profile?.bio ? (
-          <p className="text-lg text-gray-600 leading-relaxed">{user.profile.bio}</p>
+        {isEditingBioTop ? (
+          <div>
+            <textarea
+              value={bioDraftTop}
+              onChange={(e) => setBioDraftTop(e.target.value.slice(0, 150))}
+              placeholder="Tell others about yourself..."
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              rows={3}
+              maxLength={150}
+            />
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-xs text-gray-500">{bioDraftTop.length}/150 characters</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={cancelBioEditTop}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveBioEditTop}
+                  disabled={savingBio}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                >
+                  {savingBio ? 'Saving...' : 'Save Bio'}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : user.profile?.bio ? (
+          <div className="flex items-start justify-between">
+            <p className="text-lg text-gray-600 leading-relaxed flex-1">{user.profile.bio}</p>
+            <button
+              onClick={startBioEditTop}
+              className="ml-4 text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-2"
+            >
+              <Edit3 className="w-4 h-4" />
+              Edit
+            </button>
+          </div>
         ) : (
-          <div className="text-center py-12">
-            <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-4 text-lg">Tell others about yourself</p>
+          <div className="flex items-center gap-3 py-2">
+            <p className="text-gray-500 text-base flex-1">Tell others about yourself</p>
             <button 
-              className="text-orange-600 hover:text-orange-700 font-medium px-6 py-3 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
+              onClick={startBioEditTop}
+              className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
             >
               Add Bio
-            </button>
-          </div>
-        )}
-        </div>
-      
-      {/* FEATURED WORK - Middle Right */}
-      <div className="item3 bg-white rounded-3xl col-span-3 row-span-3 shadow-lg">
-        <div className="p-8">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6">Featured Work</h3>
-          <div className="text-center py-20">
-            <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Camera className="w-16 h-16 text-gray-400" />
-          </div>
-            <p className="text-gray-500 mb-4 text-lg">Showcase your best work</p>
-            <button className="text-orange-600 hover:text-orange-700 font-medium px-6 py-3 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors">
-              Add Portfolio
-            </button>
-          </div>
-          </div>
-        </div>
-
-      {/* ABOUT SECTION - Bottom Right */}
-      <div className="item4 bg-white rounded-3xl col-span-3 shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">About {user.displayName || user.username}</h1>
-        {user.profile?.bio ? (
-          <p className="text-lg text-gray-600 leading-relaxed">{user.profile.bio}</p>
-        ) : (
-          <div className="text-center py-12">
-            <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-4 text-lg">Add more details about yourself</p>
-            <button 
-              className="text-orange-600 hover:text-orange-700 font-medium px-6 py-3 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
-            >
-              Complete Profile
             </button>
             </div>
         )}
         </div>
+
+      {/* FEATURED WORK - Middle Right */}
+      <div className="item3 bg-white rounded-3xl col-span-3 row-span-2 shadow-lg">
+        <div className="p-6 flex flex-col h-full">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-3xl font-bold text-gray-800 mb-2">Featured Work</h3>
+              <div className="flex items-center gap-3">
+                <Camera className="w-5 h-5 text-gray-400" />
+                <p className="text-gray-500 text-base">Showcase your best work</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => navigate('/portfolio/upload')}
+              className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-2"
+            >
+              <Camera className="w-4 h-4" />
+              Add Portfolio
+            </button>
+          </div>
+          
+          {/* Portfolio Items Grid */}
+          {user.portfolio && user.portfolio.length > 0 ? (
+            <div className="flex-1 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-4">
+                {user.portfolio.map((item, index) => (
+                  <div key={index} className="bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <img 
+                      src={`${import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000'}${item.image}`}
+                      alt={item.caption || 'Portfolio item'}
+                      className="w-full h-48 object-cover"
+                    />
+                    {item.caption && (
+                      <div className="p-3">
+                        <p className="text-sm text-gray-700 line-clamp-2">{item.caption}</p>
+                      </div>
+                    )}
+            </div>
+          ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+              <Camera className="w-16 h-16 text-gray-300 mb-4" />
+              <p className="text-gray-500 mb-4">No portfolio items yet</p>
+              <p className="text-gray-400 text-sm">Click "Add Portfolio" to showcase your work</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Edit Profile Modal */}
       {showEditModal && (
@@ -328,9 +424,9 @@ const Profile = () => {
                       placeholder="Tell others about yourself..."
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       rows={3}
-                      maxLength={500}
+                      maxLength={150}
                     />
-                    <p className="text-xs text-gray-500 mt-1">{editFormData.bio.length}/500 characters</p>
+                    <p className="text-xs text-gray-500 mt-1">{editFormData.bio.length}/150 characters</p>
                   </div>
 
                   <div>
