@@ -1,6 +1,6 @@
 import React from 'react'
 import {Link} from "react-router-dom";
-
+//just want to check if my push are working 
 const Footer = () => {
   const footLinks = [
     {id: "about", title: "About"},
