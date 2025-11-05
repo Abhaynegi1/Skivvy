@@ -133,5 +133,47 @@ export const authAPI = {
       body: formData
     });
     return response.json();
+  },
+
+  // Upload portfolio image
+  uploadPortfolioImage: async (file, caption) => {
+    const formData = new FormData();
+    formData.append('portfolioImage', file);
+    formData.append('caption', caption);
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/auth/portfolio`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+    return response.json();
+  },
+
+  // Update portfolio caption
+  updatePortfolioCaption: async (itemId, caption) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/auth/portfolio/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ caption })
+    });
+    return response.json();
+  },
+
+  // Delete portfolio item
+  deletePortfolioItem: async (itemId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/auth/portfolio/${itemId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.json();
   }
 }; 

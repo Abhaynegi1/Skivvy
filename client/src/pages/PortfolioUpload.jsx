@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Upload, Filter, Sliders, Type, Check, RotateCw, ZoomIn, ZoomOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { useToast } from '../components/Toast';
 
 const PortfolioUpload = () => {
   const navigate = useNavigate();
+  const { show } = useToast();
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
@@ -137,43 +139,54 @@ const PortfolioUpload = () => {
   };
 
   const handleSave = async () => {
-    if (!canvasRef.current || !caption.trim()) {
-      alert('Please add a caption');
+    if (!caption.trim()) {
+      show({ type: 'error', title: 'Missing caption', message: 'Please add a caption' });
       return;
     }
 
+    // Ensure we can produce a blob even if the canvas element is not mounted
+    const produceBlob = () => new Promise((resolve) => {
+      const c = canvasRef.current || document.createElement('canvas');
+      if (!canvasRef.current && originalImage) {
+        c.width = originalImage.width;
+        c.height = originalImage.height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(originalImage, 0, 0);
+      }
+      c.toBlob((b) => resolve(b), 'image/jpeg', 0.9);
+    });
+
     setUploading(true);
     try {
-      canvasRef.current.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append('portfolioImage', blob, 'portfolio.jpg');
-        formData.append('caption', caption);
+      const blob = await produceBlob();
+      const formData = new FormData();
+      formData.append('portfolioImage', blob, 'portfolio.jpg');
+      formData.append('caption', caption);
 
-        const token = localStorage.getItem('token');
-        const API_BASE_URL = import.meta.env.PROD 
-          ? 'https://skivvy-backend.onrender.com' 
-          : 'http://localhost:5000';
+      const token = localStorage.getItem('token');
+      const API_BASE_URL = import.meta.env.PROD 
+        ? 'https://skivvy-backend.onrender.com' 
+        : 'http://localhost:5000';
 
-        const response = await fetch(`${API_BASE_URL}/api/auth/portfolio`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
+      const response = await fetch(`${API_BASE_URL}/api/auth/portfolio`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
 
-        const data = await response.json();
-        if (data.success) {
-          // Redirect to profile page without alert
-          navigate('/Profile');
-        } else {
-          alert(data.message || 'Failed to upload portfolio');
-          setUploading(false);
-        }
-      }, 'image/jpeg', 0.9);
+      const data = await response.json();
+      if (data.success) {
+        show({ type: 'success', title: 'Posted', message: 'Your portfolio item has been posted' });
+        navigate('/Profile');
+      } else {
+        show({ type: 'error', title: 'Upload failed', message: data.message || 'Failed to upload portfolio' });
+        setUploading(false);
+      }
     } catch (error) {
       console.error('Error uploading portfolio:', error);
-      alert('Error uploading portfolio');
+      show({ type: 'error', title: 'Upload error', message: 'Error uploading portfolio' });
       setUploading(false);
     }
   };
@@ -206,6 +219,8 @@ const PortfolioUpload = () => {
 
         {/* Content */}
         <div className="bg-white rounded-3xl shadow-lg p-6">
+            {/* Keep an offscreen canvas mounted across steps so saving always works */}
+            <canvas ref={canvasRef} className="hidden" />
             {step === 'upload' && (
               <div className="text-center py-20">
                 <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">

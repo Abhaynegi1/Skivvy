@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from "react";
-import { Camera, Code, PenTool, Music2, BookOpenText, Book, User, MapPin, Plus, X, Check, ArrowRight, Edit3, Upload } from "lucide-react";
+import { Camera, Code, PenTool, Music2, BookOpenText, Book, User, MapPin, Plus, X, Check, ArrowRight, Edit3, Upload, MoreVertical, Trash2 } from "lucide-react";
 import { authAPI } from "../utils/api";
+import { useToast } from "../components/Toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../components/ProfilePictureUpload";
 
@@ -22,6 +23,13 @@ const Profile = () => {
   const [savingBio, setSavingBio] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [captionModalOpen, setCaptionModalOpen] = useState(false);
+  const [captionDraft, setCaptionDraft] = useState('');
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
+  const { show } = useToast();
 
 
   useEffect(() => {
@@ -66,6 +74,46 @@ const Profile = () => {
     fetchUserProfile();
   }, [navigate, location.pathname]);
 
+  const startEditCaption = (item) => {
+    setEditingItemId(item._id);
+    setCaptionDraft(item.caption || '');
+    setCaptionModalOpen(true);
+  };
+
+  const handleSaveCaption = async () => {
+    if (!editingItemId) return;
+    const resp = await authAPI.updatePortfolioCaption(editingItemId, captionDraft);
+    if (resp?.success) {
+      setCaptionModalOpen(false);
+      show({ type: 'success', title: 'Updated', message: 'Caption updated' });
+      // Refresh profile data
+      const updated = await authAPI.getProfile();
+      if (updated.success) setUser(updated.user);
+    } else {
+      show({ type: 'error', title: 'Update failed', message: resp?.message || 'Failed to update caption' });
+    }
+  };
+
+  const requestDeleteItem = (item) => {
+    setMenuOpenId(null);
+    setDeleteItemId(item._id);
+    setConfirmOpen(true);
+  };
+
+  const handleDeleteItem = async () => {
+    if (!deleteItemId) return;
+    setConfirmOpen(false);
+    const resp = await authAPI.deletePortfolioItem(deleteItemId);
+    if (resp?.success) {
+      show({ type: 'success', title: 'Deleted', message: 'Post deleted' });
+      // Refresh profile data
+      const updated = await authAPI.getProfile();
+      if (updated.success) setUser(updated.user);
+    } else {
+      show({ type: 'error', title: 'Delete failed', message: resp?.message || 'Failed to delete' });
+    }
+  };
+
   const handleProfilePictureConfirm = async (croppedBlob) => {
     setUploading(true);
     try {
@@ -82,12 +130,12 @@ const Profile = () => {
         // Update localStorage
         const updatedUser = { ...user, profile: { ...user.profile, profileImage: response.profileImage } };
         localStorage.setItem('user', JSON.stringify(updatedUser));
-      } else {
-        alert('Failed to upload profile picture');
-      }
+            } else {
+              show({ type: 'error', title: 'Upload failed', message: 'Failed to upload profile picture' });
+            }
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
-      alert('Error uploading profile picture');
+            console.error('Error uploading profile picture:', error);
+            show({ type: 'error', title: 'Upload error', message: 'Error uploading profile picture' });
     } finally {
       setUploading(false);
     }
@@ -101,12 +149,12 @@ const Profile = () => {
         setUser(response.user);
         localStorage.setItem('user', JSON.stringify(response.user));
         setShowEditModal(false);
-      } else {
-        alert('Failed to update profile');
-      }
+            } else {
+              show({ type: 'error', title: 'Update failed', message: 'Failed to update profile' });
+            }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Error updating profile');
+            console.error('Error updating profile:', error);
+            show({ type: 'error', title: 'Update error', message: 'Error updating profile' });
     } finally {
       setSaving(false);
     }
@@ -132,12 +180,12 @@ const Profile = () => {
         setUser(response.user);
         localStorage.setItem('user', JSON.stringify(response.user));
         setIsEditingBioTop(false);
-      } else {
-        alert('Failed to update bio');
-      }
+            } else {
+               show({ type: 'error', title: 'Update failed', message: 'Failed to update bio' });
+            }
     } catch (e) {
-      console.error('Error updating bio:', e);
-      alert('Error updating bio');
+           console.error('Error updating bio:', e);
+           show({ type: 'error', title: 'Update error', message: 'Error updating bio' });
     } finally {
       setSavingBio(false);
     }
@@ -179,7 +227,7 @@ const Profile = () => {
 
   // Improved original grid layout
   return (
-    <div className="bg-orange-100 min-h-screen p-4 gap-6 grid grid-cols-4 grid-rows-5 place-items-stretch mt-20">
+    <div className="bg-orange-100 min-h-screen p-4 gap-6 grid grid-cols-4 place-items-stretch mt-20">
       {/* PROFILE CONTAINER - Left Sidebar */}
       <div className="item1 bg-white row-span-5 rounded-3xl shadow-lg">
         <div className="profile-container flex flex-col items-center justify-center p-4">
@@ -281,8 +329,8 @@ const Profile = () => {
         </div>
 
       {/* SUMMARY CONTAINER - Top Right */}
-      <div className="item2 bg-white col-span-3 rounded-3xl shadow-lg p-6">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to {user.displayName || user.username}'s Profile</h1>
+      <div className="item2 bg-white col-span-3 rounded-3xl shadow-lg p-4 self-start">
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to {user.displayName || user.username}'s Profile</h1>
         {isEditingBioTop ? (
           <div>
             <textarea
@@ -314,7 +362,7 @@ const Profile = () => {
           </div>
         ) : user.profile?.bio ? (
           <div className="flex items-start justify-between">
-            <p className="text-lg text-gray-600 leading-relaxed flex-1">{user.profile.bio}</p>
+            <p className="text-lg text-gray-700 leading-relaxed flex-1">{user.profile.bio}</p>
             <button
               onClick={startBioEditTop}
               className="ml-4 text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-2"
@@ -354,30 +402,60 @@ const Profile = () => {
               <Camera className="w-4 h-4" />
               Add Portfolio
             </button>
-          </div>
-          
+        </div>
+
           {/* Portfolio Items Grid */}
           {user.portfolio && user.portfolio.length > 0 ? (
             <div className="flex-1 overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
                 {user.portfolio.map((item, index) => (
-                  <div key={index} className="bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <img 
-                      src={`${import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000'}${item.image}`}
-                      alt={item.caption || 'Portfolio item'}
-                      className="w-full h-48 object-cover"
-                    />
+                  <div key={item._id || index} className="relative bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="relative w-full aspect-square">
+                      <img 
+                        src={`${import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000'}${item.image}`}
+                        alt={item.caption || 'Portfolio item'}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      {/* Actions menu */}
+                      <div className="absolute top-2 right-2">
+                        <button
+                          onClick={() => setMenuOpenId(menuOpenId === (item._id || index) ? null : (item._id || index))}
+                          className="p-2 rounded-full bg-white/90 hover:bg-white shadow border border-gray-200"
+                          aria-label="Open post menu"
+                        >
+                          <MoreVertical className="w-4 h-4 text-gray-700" />
+                        </button>
+                        {menuOpenId === (item._id || index) && (
+                          <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            <button
+                              onClick={() => { setMenuOpenId(null); startEditCaption(item); }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                              Edit caption
+                            </button>
+                            <button
+                              onClick={() => requestDeleteItem(item)}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete post
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                     {item.caption && (
-                      <div className="p-3">
-                        <p className="text-sm text-gray-700 line-clamp-2">{item.caption}</p>
+                      <div className="p-4 border-t border-orange-100 bg-white">
+                        <p className="text-base font-medium text-gray-800">{item.caption}</p>
                       </div>
                     )}
             </div>
           ))}
-              </div>
-            </div>
+        </div>
+      </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
+             <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
               <Camera className="w-16 h-16 text-gray-300 mb-4" />
               <p className="text-gray-500 mb-4">No portfolio items yet</p>
               <p className="text-gray-400 text-sm">Click "Add Portfolio" to showcase your work</p>
@@ -465,6 +543,69 @@ const Profile = () => {
       </div>
       </div>
       </div>
+      )}
+
+      {/* Edit Caption Modal */}
+      {captionModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Edit Caption</h2>
+                <button onClick={() => setCaptionModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <textarea
+                value={captionDraft}
+                onChange={(e) => setCaptionDraft(e.target.value)}
+                rows={4}
+                maxLength={500}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setCaptionModalOpen(false)}
+                  className="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveCaption}
+                  className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                >
+                  Save
+                </button>
+              </div>
+      </div>
+      </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {confirmOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">Delete post?</h3>
+              <p className="text-sm text-gray-600 mb-4">This action cannot be undone.</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setConfirmOpen(false)}
+                  className="px-5 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteItem}
+                  className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+      </div>
+      </div>
+        </div>
       )}
 
       {/* Profile Picture Upload Modal */}

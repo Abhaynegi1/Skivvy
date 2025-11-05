@@ -425,4 +425,66 @@ router.post('/portfolio', verifyToken, portfolioUpload.single('portfolioImage'),
   }
 });
 
+// Update portfolio caption (protected route)
+router.put('/portfolio/:itemId', verifyToken, async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    const { caption } = req.body;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.portfolio.id(itemId);
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Portfolio item not found' });
+    }
+
+    item.caption = caption || '';
+    await user.save();
+
+    res.json({ success: true, message: 'Caption updated', portfolioItem: item });
+  } catch (error) {
+    console.error('Update portfolio caption error:', error);
+    res.status(500).json({ success: false, message: 'Server error updating caption' });
+  }
+});
+
+// Delete portfolio item (protected route)
+router.delete('/portfolio/:itemId', verifyToken, async (req, res) => {
+  try {
+    const { itemId } = req.params;
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const item = user.portfolio.id(itemId);
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Portfolio item not found' });
+    }
+
+    // Delete file from disk if exists
+    try {
+      const filePath = path.join('uploads/portfolio', path.basename(item.image));
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch (e) {
+      console.warn('Failed to delete portfolio file:', e?.message);
+    }
+
+    // Remove from array and save
+    item.deleteOne();
+    await user.save();
+
+    res.json({ success: true, message: 'Portfolio item deleted', itemId });
+  } catch (error) {
+    console.error('Delete portfolio item error:', error);
+    res.status(500).json({ success: false, message: 'Server error deleting item' });
+  }
+});
+
 module.exports = router;

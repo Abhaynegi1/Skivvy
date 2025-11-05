@@ -17,6 +17,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import { ToastProvider } from './components/Toast';
 
 function App() {
   useEffect(() => {
@@ -26,8 +27,9 @@ function App() {
 
   return (
     <Router>
-      <Header/>
-      <Routes>
+      <ToastProvider>
+        <Header/>
+        <Routes>
         <Route exact path="/" element={<Landing/>}/>
         <Route exact path="/home" element={<Landing/>}/>
         <Route exact path="/learn" element={<Explore/>}/>
@@ -41,6 +43,7 @@ function App() {
         <Route exact path='/portfolio/upload' element={<PortfolioUpload/>}/>
       </Routes>
       <Footer/>
+      </ToastProvider>
     </Router>
   )
 }
