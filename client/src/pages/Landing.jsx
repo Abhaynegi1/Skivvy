@@ -1,5 +1,5 @@
 import React from "react";
-import { UsersRound, Search, Handshake } from "lucide-react";
+import { UsersRound, Search, Handshake, Users, Code, Globe2 } from "lucide-react";
 import Silk from "../components/Silk";
 import {motion} from "framer-motion";
 const Landing = () => {
@@ -80,7 +80,7 @@ const Landing = () => {
       </motion.div>
 
       {/* HOW IT WORKS SECTION */}
-      <div className="how-it-works text-center my-20">
+      {/* <div className="how-it-works text-center my-20">
         <h1 className="text-3xl md:text-4xl font-semibold">How it works</h1>
         <div className="features flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20 w-[90%] md:w-4/5 mx-auto mt-10">
           {[
@@ -115,10 +115,53 @@ const Landing = () => {
             </div>
           ))}
         </div>
+      </div> */}
+      <div className="mt-10 mb-20 text-black px-6 py-16 flex flex-col items-center justify-center">
+        <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-4xl sm:text-5xl font-bold mb-6 text-center"
+              >
+                About <span className="text-orange-400">Skivvy</span>
+              </motion.h1>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl w-full mt-20">
+        {[
+          {
+            icon: <Users className="w-10 h-10 text-orange-400 mb-4" />,
+            title: "Community Driven",
+            text: "Built around people who create. Share ideas, projects, and collaborate with like-minded individuals.",
+          },
+          {
+            icon: <Code className="w-10 h-10 text-orange-400 mb-4" />,
+            title: "Open & Innovative",
+            text: "An open space for code, creativity, and discovery — powered by modern tools and ideas.",
+          },
+          {
+            icon: <Globe2 className="w-10 h-10 text-orange-400 mb-4" />,
+            title: "Global Vision",
+            text: "Connect with creators worldwide and be part of a growing digital ecosystem.",
+          },
+        ].map((item, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 + i * 0.2 }}
+            className="bg-white p-6 rounded-2xl shadow-lg backdrop-blur-md hover:bg-orange-200 transition"
+          >
+            <div className="flex flex-col items-center text-center">
+              {item.icon}
+              <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+              <p className="text-gray-400">{item.text}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
       </div>
 
       {/* REVIEW SECTION */}
-      <div className="review-container mt-10 md:mt-60 p-10">
+      {/* <div className="review-container mt-10 md:mt-60 p-10">
         <h1 className="font-semibold text-4xl text-center">
           What people are saying
         </h1>
@@ -157,7 +200,7 @@ const Landing = () => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </>
   );
 };

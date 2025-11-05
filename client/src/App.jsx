@@ -13,11 +13,10 @@ import PortfolioUpload from "./pages/PortfolioUpload";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import About from './pages/About';
 import Contact from './pages/Contact';
 import { ToastProvider } from './components/Toast';
 import FloatingMessenger from './components/FloatingMessenger';
-
+import TOS from './pages/TOS';
 function App() {
   useEffect(() => {
     // Run connection tests on component mount
@@ -32,9 +31,8 @@ function App() {
           <Route exact path="/" element={<Landing/>}/>
           <Route exact path="/home" element={<Landing/>}/>
           <Route exact path="/learn" element={<Explore/>}/>
-        <Route path='/about' element={<About/>}/>
-        
         <Route path="/contact" element={<Contact />} />
+        <Route path="/terms" element={<TOS/>}/>
         <Route exact path="/community" element={<Community />} />
         <Route path="/People" element={<People />} />
         <Route path="/u/:id" element={<UserProfile />} />
