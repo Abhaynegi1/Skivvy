@@ -2,6 +2,7 @@ import React, { useState, useEffect} from "react";
 import { Camera, Code, PenTool, Music2, BookOpenText, Book, User, MapPin, Plus, X, Check, ArrowRight, Edit3, Upload, MoreVertical, Trash2 } from "lucide-react";
 import { authAPI } from "../utils/api";
 import { useToast } from "../components/Toast";
+import SkillsPicker from "../components/SkillsPicker";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../components/ProfilePictureUpload";
 
@@ -30,6 +31,11 @@ const Profile = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const { show } = useToast();
+  const allSkills = [
+    "Web Development","React","Node.js","JavaScript","TypeScript","UI/UX","Graphic Design","Branding","Guitar","Music Theory","Singing","Songwriting","Photography","Video Editing","Writing","Editing","Storytelling","Marketing","Public Speaking","Fitness Coaching","Nutrition","Yoga","Languages","Cooking","Data Science","Python","C++","Java","SQL"
+  ];
+  const [showSkillsOffered, setShowSkillsOffered] = useState(false);
+  const [showSkillsSeeking, setShowSkillsSeeking] = useState(false);
 
 
   useEffect(() => {
@@ -265,9 +271,9 @@ const Profile = () => {
                 {user.profile.location}
               </p>
             )}
-          </div>
-
         </div>
+
+          </div>
 
         {/* Skills Offered Section */}
         <div className="skills-offered flex flex-col gap-3 p-4">
@@ -275,27 +281,20 @@ const Profile = () => {
             <PenTool className="w-5 h-5 text-orange-500" />
             Skills Offered
           </h2>
-          {user.profile?.skillsOffered?.length > 0 ? (
-            user.profile.skillsOffered.map((skill, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 bg-orange-50 border border-orange-200 rounded-lg py-3 px-4 shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <PenTool className="text-orange-500 w-4 h-4" />
-                <p className="font-medium text-gray-800">{skill}</p>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-8 border-2 border-dashed border-orange-200 rounded-lg">
-              <PenTool className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 mb-3 font-medium">What can you teach others?</p>
-              <button 
-                className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
-              >
-                Add Skills
-              </button>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {(user.profile?.skillsOffered || []).map((skill, idx) => (
+              <span key={idx} className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm border border-orange-200">{skill}</span>
+            ))}
+          </div>
+          <div className="text-center py-4 border-2 border-dashed border-orange-200 rounded-lg">
+            <p className="text-gray-500 mb-3 font-medium">What can you teach others?</p>
+            <button 
+              onClick={() => setShowSkillsOffered(true)}
+              className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
+            >
+              {(user.profile?.skillsOffered || []).length > 0 ? 'Edit Skills' : 'Add Skills'}
+            </button>
+          </div>
         </div>
 
         {/* Skills Seeking Section */}
@@ -304,27 +303,20 @@ const Profile = () => {
             <Book className="w-5 h-5 text-blue-500" />
             Skills Seeking
           </h2>
-          {user.profile?.skillsSeeking?.length > 0 ? (
-            user.profile.skillsSeeking.map((skill, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg py-3 px-4 shadow-sm hover:shadow-md transition-all duration-200"
-              >
-                <Book className="text-blue-500 w-4 h-4" />
-                <p className="font-medium text-gray-800">{skill}</p>
+          <div className="flex flex-wrap gap-2">
+            {(user.profile?.skillsSeeking || []).map((skill, idx) => (
+              <span key={idx} className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm border border-blue-200">{skill}</span>
+            ))}
           </div>
-            ))
-          ) : (
-            <div className="text-center py-8 border-2 border-dashed border-blue-200 rounded-lg">
-              <Book className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 mb-3 font-medium">What do you want to learn?</p>
-              <button 
-                className="text-blue-600 hover:text-blue-700 font-medium px-4 py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-              >
-                Add Skills
-              </button>
+          <div className="text-center py-4 border-2 border-dashed border-blue-200 rounded-lg">
+            <p className="text-gray-500 mb-3 font-medium">What do you want to learn?</p>
+            <button 
+              onClick={() => setShowSkillsSeeking(true)}
+              className="text-blue-600 hover:text-blue-700 font-medium px-4 py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              {(user.profile?.skillsSeeking || []).length > 0 ? 'Edit Skills' : 'Add Skills'}
+            </button>
           </div>
-          )}
           </div>
         </div>
 
@@ -606,6 +598,48 @@ const Profile = () => {
       </div>
       </div>
         </div>
+      )}
+
+      {showSkillsOffered && (
+        <SkillsPicker
+          title="Select up to 5 skills you can teach"
+          availableSkills={allSkills}
+          initialSelected={user.profile?.skillsOffered || []}
+          max={5}
+          onCancel={() => setShowSkillsOffered(false)}
+          onSave={async (skills) => {
+            const resp = await authAPI.updateProfile({ skillsOffered: skills });
+            if (resp?.success) {
+              setShowSkillsOffered(false);
+              setUser(prev => ({ ...prev, ...resp.user, portfolio: resp.user?.portfolio ?? prev?.portfolio }));
+              localStorage.setItem('user', JSON.stringify({ ...user, ...resp.user, portfolio: resp.user?.portfolio ?? user?.portfolio }));
+              show({ type: 'success', title: 'Updated', message: 'Skills Offered updated' });
+            } else {
+              show({ type: 'error', title: 'Update failed', message: resp?.message || 'Could not save skills' });
+            }
+          }}
+        />
+      )}
+
+      {showSkillsSeeking && (
+        <SkillsPicker
+          title="Select up to 5 skills you want to learn"
+          availableSkills={allSkills}
+          initialSelected={user.profile?.skillsSeeking || []}
+          max={5}
+          onCancel={() => setShowSkillsSeeking(false)}
+          onSave={async (skills) => {
+            const resp = await authAPI.updateProfile({ skillsSeeking: skills });
+            if (resp?.success) {
+              setShowSkillsSeeking(false);
+              setUser(prev => ({ ...prev, ...resp.user, portfolio: resp.user?.portfolio ?? prev?.portfolio }));
+              localStorage.setItem('user', JSON.stringify({ ...user, ...resp.user, portfolio: resp.user?.portfolio ?? user?.portfolio }));
+              show({ type: 'success', title: 'Updated', message: 'Skills Seeking updated' });
+            } else {
+              show({ type: 'error', title: 'Update failed', message: resp?.message || 'Could not save skills' });
+            }
+          }}
+        />
       )}
 
       {/* Profile Picture Upload Modal */}

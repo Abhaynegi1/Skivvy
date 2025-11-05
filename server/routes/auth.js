@@ -284,6 +284,7 @@ router.put('/profile', verifyToken, async (req, res) => {
         displayName: user.displayName,
         email: user.email,
         profile: user.profile,
+        portfolio: user.portfolio,
         createdAt: user.createdAt,
         profileCompletion
       }
