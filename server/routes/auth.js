@@ -270,6 +270,34 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Public: get single user by id (includes portfolio)
+router.get('/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('username displayName profile portfolio createdAt').lean();
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const payload = {
+      id: user._id,
+      username: user.username,
+      displayName: user.displayName,
+      profile: {
+        bio: user.profile?.bio || '',
+        skillsOffered: user.profile?.skillsOffered || [],
+        skillsSeeking: user.profile?.skillsSeeking || [],
+        profileImage: user.profile?.profileImage || null,
+        location: user.profile?.location || ''
+      },
+      portfolio: (user.portfolio || []).map(p => ({ _id: p._id, image: p.image, caption: p.caption })),
+      createdAt: user.createdAt,
+    };
+    res.json({ success: true, user: payload });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Update user profile (protected route)
 router.put('/profile', verifyToken, async (req, res) => {
   try {

@@ -7,6 +7,8 @@ import People from "./pages/People";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
+import Chat from "./pages/Chat";
 import PortfolioUpload from "./pages/PortfolioUpload";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
@@ -14,6 +16,7 @@ import Footer from "./components/Footer";
 import About from './pages/About';
 import Contact from './pages/Contact';
 import { ToastProvider } from './components/Toast';
+import FloatingMessenger from './components/FloatingMessenger';
 
 function App() {
   useEffect(() => {
@@ -34,11 +37,14 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route exact path="/community" element={<Community />} />
         <Route path="/People" element={<People />} />
+        <Route path="/u/:id" element={<UserProfile />} />
+        <Route path="/chat/:id" element={<Chat />} />
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<Signup />} />
         <Route exact path="/Profile" element={<Profile />} />
         <Route exact path="/portfolio/upload" element={<PortfolioUpload />} />
       </Routes>
+        <FloatingMessenger />
         <Footer/>
       </ToastProvider>
     </Router>

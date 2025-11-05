@@ -15,6 +15,59 @@ export const testBackendConnection = async () => {
   }
 };
 
+// Chat API
+export const chatAPI = {
+  listConversations: async () => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  getOrCreateConversation: async (userId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ userId })
+    });
+    return response.json();
+  },
+  getMessages: async (conversationId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${conversationId}/messages`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  },
+  sendMessage: async (conversationId, text) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${conversationId}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ text })
+    });
+    return response.json();
+  },
+  updateMessage: async (conversationId, messageId, text) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${conversationId}/messages/${messageId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ text })
+    });
+    return response.json();
+  },
+  deleteMessage: async (conversationId, messageId) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/chat/conversations/${conversationId}/messages/${messageId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return response.json();
+  }
+};
+
 // Test health endpoint
 export const testHealthEndpoint = async () => {
   try {
@@ -209,6 +262,14 @@ export const authAPI = {
   // List users (public fields only)
   listUsers: async () => {
     const response = await fetch(`${API_BASE_URL}/api/auth/users`, {
+      method: 'GET'
+    });
+    return response.json();
+  },
+
+  // Get user by id (public)
+  getUserById: async (userId) => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/users/${userId}`, {
       method: 'GET'
     });
     return response.json();

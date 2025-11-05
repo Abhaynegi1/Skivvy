@@ -66,7 +66,7 @@ const Explore = () => {
     });
 
     return sorted;
-  }, [sortBy, sortOrder]);
+  }, [profiles, sortBy, sortOrder]);
 
   // Load current user (to hide their own card)
   useEffect(() => {
@@ -222,7 +222,7 @@ const Explore = () => {
   };
 
   const handleGotoPeople = (profile) => {
-    navigate("/People", { state: { profile } });
+    navigate(`/u/${profile.id}`);
   };
 
   return (
@@ -402,7 +402,7 @@ const Explore = () => {
             </motion.div>
 
             {/* No Results Message */}
-            {sortedProfiles.length === 0 && (
+            {visibleProfiles.length === 0 && !loading && (
               <div className="text-center py-12">
                 <div className="text-gray-500 text-lg mb-2">
                   No talents found
@@ -424,7 +424,12 @@ const Explore = () => {
                 {currentProfiles.map((profile) => (
                   <div
                     key={profile.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                    onClick={() => handleGotoPeople(profile)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleGotoPeople(profile); }}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    aria-label={`Open ${profile.name}'s profile`}
                   >
                     <div className="flex items-start gap-4">
                       {/* Avatar */}
@@ -446,12 +451,9 @@ const Explore = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            {/* PROFILE BUTTON */}
-                            <button onClick={() => handleGotoPeople(profile)}>
-                              <h4 className="text-lg font-semibold text-gray-900 mb-1">
-                                {profile.name}
-                              </h4>
-                            </button>
+                            <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                              {profile.name}
+                            </h4>
                             {/* Location removed */}
                           </div>
                         </div>

@@ -403,9 +403,11 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-4">
                 {user.portfolio.map((item, index) => (
                   <div key={item._id || index} className="relative bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setLightboxItem(item)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') setLightboxItem(item); }}
                       className="relative w-full aspect-square focus:outline-none"
                     >
                       <img
@@ -441,7 +443,7 @@ const Profile = () => {
                           </div>
                         )}
                       </div>
-                    </button>
+                    </div>
                     {item.caption && (
                       <div className="p-4 border-t border-orange-100 bg-white">
                         <p className="text-base font-medium text-gray-800">{item.caption}</p>

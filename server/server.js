@@ -52,6 +52,8 @@ app.get('/api/health', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', require('./routes/auth'));
+// Chat routes
+app.use('/api/chat', require('./routes/chat'));
 
 // Error handling
 app.use((err, req, res, next) => {
