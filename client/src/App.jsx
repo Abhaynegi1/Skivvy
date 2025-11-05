@@ -12,12 +12,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import About from './pages/About';
-<<<<<<< HEAD
 import Contact from './pages/Contact';
 import { ToastProvider } from './components/Toast';
-=======
-import Contact from "./pages/Contact";
->>>>>>> bfe68904fcef6fe5bae99785b6f19c6d6a25b400
 
 function App() {
   useEffect(() => {
@@ -27,20 +23,12 @@ function App() {
 
   return (
     <Router>
-<<<<<<< HEAD
       <ToastProvider>
         <Header/>
         <Routes>
-        <Route exact path="/" element={<Landing/>}/>
-        <Route exact path="/home" element={<Landing/>}/>
-        <Route exact path="/learn" element={<Explore/>}/>
-=======
-      <Header />
-      <Routes>
-        <Route exact path="/" element={<Landing />} />
-        <Route exact path="/home" element={<Landing />} />
-        <Route exact path="/learn" element={<Explore />} />
->>>>>>> bfe68904fcef6fe5bae99785b6f19c6d6a25b400
+          <Route exact path="/" element={<Landing/>}/>
+          <Route exact path="/home" element={<Landing/>}/>
+          <Route exact path="/learn" element={<Explore/>}/>
         <Route path='/about' element={<About/>}/>
         
         <Route path="/contact" element={<Contact />} />
@@ -51,12 +39,8 @@ function App() {
         <Route exact path="/Profile" element={<Profile />} />
         <Route exact path="/portfolio/upload" element={<PortfolioUpload />} />
       </Routes>
-<<<<<<< HEAD
-      <Footer/>
+        <Footer/>
       </ToastProvider>
-=======
-      <Footer />
->>>>>>> bfe68904fcef6fe5bae99785b6f19c6d6a25b400
     </Router>
   );
 }
