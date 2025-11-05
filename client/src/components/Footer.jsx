@@ -1,4 +1,5 @@
 import React from 'react'
+import {Link} from "react-router-dom";
 
 const Footer = () => {
   const footLinks = [
@@ -14,7 +15,7 @@ const Footer = () => {
       <ul className="flex gap-8 text-zinc-600 text-lg">
         {footLinks.map((link)=>(
           <li key={link.id}>
-            <a href={`/${link.id}`}>{link.title}</a>
+            <Link to={`/${link.id}`}>{link.title}</Link>
           </li>
         ))}
       </ul>
@@ -23,4 +24,4 @@ const Footer = () => {
   )
 }
 
-export default Footer
+export default Footer;

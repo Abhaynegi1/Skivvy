@@ -1,7 +1,7 @@
 import React from "react";
 import { UsersRound, Search, Handshake } from "lucide-react";
 import Silk from "../components/Silk";
-
+import {motion} from "framer-motion";
 const Landing = () => {
   const trending = [
     { id: 1, title: "Photography" },
@@ -14,14 +14,18 @@ const Landing = () => {
     <>
       {/* HERO SECTION */}
       {/* HERO SECTION */}
-      <div className="relative flex items-center justify-center mt-20 h-[85vh] overflow-hidden rounded-2xl sm:rounded-3xl w-[90%] sm:w-4/5 mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}> 
+      <div className="relative flex items-center justify-center mt-24 h-[85vh] overflow-hidden rounded-2xl sm:rounded-3xl w-[90%] sm:w-4/5 mx-auto">
         <div className="absolute inset-0">
           <Silk
             speed={5}
             scale={1}
             color="#f6ad55"
             noiseIntensity={1.5}
-            rotation={0}
+            rotation={1}
             className="w-full h-full"
           />
         </div>
@@ -73,6 +77,7 @@ const Landing = () => {
           </div>
         </div>
       </div>
+      </motion.div>
 
       {/* HOW IT WORKS SECTION */}
       <div className="how-it-works text-center my-20">
