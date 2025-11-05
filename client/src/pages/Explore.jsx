@@ -17,94 +17,37 @@ import {
 import { Navigate, useNavigate } from "react-router-dom";
 import People from "./People";
 import { motion } from "framer-motion";
+import { authAPI } from "../utils/api";
 
 const Explore = () => {
   const navigate = useNavigate();
 
-  const skills = [
+  const popularSkills = [
     "Web Development",
-    "Writing",
-    "Graphic designing",
     "Programming",
-    "Gaming",
-    "Guitar",
-    "Singing",
+    "Graphic designing",
     "Video editing",
+    "Writing",
   ];
 
-  // Profiles data with bio and additional info
-  const profiles = [
-    {
-      id: 1,
-      name: "Alex Johnson",
-      bio: "Passionate web developer with 5 years of experience in React and Node.js. Love teaching others and learning new technologies. Always excited to share knowledge and help beginners start their coding journey.",
-      skillsOffered: ["Web Development", "JavaScript"],
-      skillsWantToLearn: ["Machine Learning", "DevOps"],
-      rating: 4.2,
-      duration: 1,
-      location: "New York",
-      profileImage: null,
-    },
-    {
-      id: 2,
-      name: "Sarah Chen",
-      bio: "Creative graphic designer and video editor with a passion for visual storytelling. I specialize in Adobe Creative Suite and love helping others discover their creative potential through design.",
-      skillsOffered: ["Video editing", "Graphic designing"],
-      skillsWantToLearn: ["Web Development", "3D Modeling"],
-      rating: 3.8,
-      duration: 3,
-      location: "San Francisco",
-      profileImage: null,
-    },
-    {
-      id: 3,
-      name: "Mike Rodriguez",
-      bio: "Full-stack developer and gaming enthusiast. I've been coding for 8 years and love building web applications. Currently learning game development and always happy to mentor new developers.",
-      skillsOffered: ["Web Development", "Programming"],
-      skillsWantToLearn: ["Game Development", "Mobile Apps"],
-      rating: 4.9,
-      duration: 6,
-      location: "Austin",
-      profileImage: null,
-    },
-    {
-      id: 4,
-      name: "Emma Wilson",
-      bio: "Content writer and singer with a love for creative expression. I help businesses tell their stories through compelling content and enjoy teaching others the art of effective communication.",
-      skillsOffered: ["Writing", "Content Creation"],
-      skillsWantToLearn: ["Public Speaking", "Marketing"],
-      rating: 2.5,
-      duration: 12,
-      location: "Seattle",
-      profileImage: null,
-    },
-    {
-      id: 5,
-      name: "David Kim",
-      bio: "UI/UX designer and programming instructor. I create beautiful user experiences and love teaching design principles. Always excited to learn new design tools and share knowledge with the community.",
-      skillsOffered: ["Graphic designing", "UI/UX Design"],
-      skillsWantToLearn: ["Programming", "Data Visualization"],
-      rating: 4.5,
-      duration: 9,
-      location: "Los Angeles",
-      profileImage: null,
-    },
-  ];
+  // Loaded profiles from backend
+  const [profiles, setProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Filter states
   const [filters, setFilters] = useState({
-    feeRange: "",
-    schoolType: "",
-    gender: "",
-    curriculum: "",
-    rating: "",
+    offered: [], // array of skills
+    seeking: [], // array of skills
   });
-  const [sortBy, setSortBy] = useState("rating");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [offeredQuery, setOfferedQuery] = useState("");
+  const [seekingQuery, setSeekingQuery] = useState("");
 
   const TALENTS_PER_PAGE = 5;
 
@@ -113,26 +56,8 @@ const Explore = () => {
     let sorted = [...profiles];
 
     sorted.sort((a, b) => {
-      let aValue, bValue;
-
-      switch (sortBy) {
-        case "name":
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
-        case "rating":
-          aValue = a.rating;
-          bValue = b.rating;
-          break;
-        case "experience":
-          aValue = a.duration;
-          bValue = b.duration;
-          break;
-        default:
-          aValue = a.rating;
-          bValue = b.rating;
-      }
-
+      const aValue = (a.name || '').toLowerCase();
+      const bValue = (b.name || '').toLowerCase();
       if (sortOrder === "asc") {
         return aValue > bValue ? 1 : -1;
       } else {
@@ -143,16 +68,77 @@ const Explore = () => {
     return sorted;
   }, [sortBy, sortOrder]);
 
+  // Load current user (to hide their own card)
+  useEffect(() => {
+    (async () => {
+      try {
+        if (authAPI.isAuthenticated()) {
+          const resp = await authAPI.getProfile();
+          if (resp?.success) setCurrentUser(resp.user);
+        }
+      } catch {}
+    })();
+  }, []);
+
+  // Exclude current user from list
+  const visibleProfiles = useMemo(() => {
+    const selfName = currentUser?.displayName || currentUser?.username || "";
+    let list = sortedProfiles.filter(p => p.name !== selfName);
+
+    // Apply skill filters (OR within each group)
+    if ((filters.offered || []).length > 0) {
+      list = list.filter(p =>
+        Array.isArray(p.skillsOffered) && p.skillsOffered.some(s => filters.offered.includes(s))
+      );
+    }
+    if ((filters.seeking || []).length > 0) {
+      list = list.filter(p =>
+        Array.isArray(p.skillsWantToLearn) && p.skillsWantToLearn.some(s => filters.seeking.includes(s))
+      );
+    }
+
+    return list;
+  }, [sortedProfiles, currentUser, filters]);
+
   // Calculate pagination values
-  const totalPages = Math.ceil(sortedProfiles.length / TALENTS_PER_PAGE);
+  const totalPages = Math.ceil(visibleProfiles.length / TALENTS_PER_PAGE);
   const startIndex = (currentPage - 1) * TALENTS_PER_PAGE;
   const endIndex = startIndex + TALENTS_PER_PAGE;
-  const currentProfiles = sortedProfiles.slice(startIndex, endIndex);
+  const currentProfiles = visibleProfiles.slice(startIndex, endIndex);
 
   // Reset to first page when profiles or sorting changes
   useEffect(() => {
     setCurrentPage(1);
   }, [sortBy, sortOrder]);
+
+  // Fetch users from backend
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await authAPI.listUsers();
+        if (res?.success && Array.isArray(res.users)) {
+          const API_BASE_URL = import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000';
+          const normalized = res.users.map(u => ({
+            id: u.id,
+            name: u.displayName || u.username,
+            bio: u.profile?.bio || '',
+            skillsOffered: u.profile?.skillsOffered || [],
+            skillsWantToLearn: u.profile?.skillsSeeking || [],
+            profileImage: u.profile?.profileImage ? `${API_BASE_URL}${u.profile.profileImage}` : null,
+            username: u.username,
+          }));
+          setProfiles(normalized);
+        } else {
+          setProfiles([]);
+        }
+      } catch (e) {
+        setProfiles([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -200,13 +186,9 @@ const Explore = () => {
 
   // Clear all filters
   const handleClearFilters = () => {
-    setFilters({
-      feeRange: "",
-      schoolType: "",
-      gender: "",
-      curriculum: "",
-      rating: "",
-    });
+    setFilters({ offered: [], seeking: [] });
+    setOfferedQuery("");
+    setSeekingQuery("");
   };
 
   /**
@@ -267,80 +249,75 @@ const Explore = () => {
                   </h3>
                 </div>
 
-                {/* Skills Filter */}
+                {/* Skills Offered Filter */}
                 <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <BookOpen className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm font-medium text-gray-700">
-                      Skills
-                    </h4>
+                    <h4 className="text-sm font-medium text-gray-700">Skills Offered</h4>
                   </div>
+                  <input
+                    value={offeredQuery}
+                    onChange={(e) => setOfferedQuery(e.target.value)}
+                    placeholder="Search skills..."
+                    className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {skills.map((skill) => (
-                      <label
-                        key={skill}
-                        className="flex items-center gap-2 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-                        />
-                        <span className="text-sm text-gray-700">{skill}</span>
-                      </label>
-                    ))}
+                    {popularSkills
+                      .filter(s => s.toLowerCase().includes(offeredQuery.toLowerCase()))
+                      .map((skill) => (
+                        <label key={skill} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.offered.includes(skill)}
+                            onChange={(e) => {
+                              setFilters(prev => ({
+                                ...prev,
+                                offered: e.target.checked
+                                  ? [...prev.offered, skill]
+                                  : prev.offered.filter(s => s !== skill)
+                              }));
+                            }}
+                            className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                          />
+                          <span className="text-sm text-gray-700">{skill}</span>
+                        </label>
+                      ))}
                   </div>
                 </div>
 
-                {/* Minimum Rating Filter */}
+                {/* Skills Seeking Filter */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Star className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm font-medium text-gray-700">
-                      Minimum Rating
-                    </h4>
+                  <div className="flex items-center gap-2 mb-2">
+                    <BookOpen className="w-4 h-4 text-gray-600" />
+                    <h4 className="text-sm font-medium text-gray-700">Skills Seeking</h4>
                   </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="rating"
-                        defaultChecked
-                        className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        ★★★★☆ 4+ Stars
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="rating"
-                        className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        ★★★☆☆ 3+ Stars
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="rating"
-                        className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        ★★☆☆☆ 2+ Stars
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="rating"
-                        className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        ★☆☆☆☆ 1+ Stars
-                      </span>
-                    </label>
+                  <input
+                    value={seekingQuery}
+                    onChange={(e) => setSeekingQuery(e.target.value)}
+                    placeholder="Search skills..."
+                    className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  />
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {popularSkills
+                      .filter(s => s.toLowerCase().includes(seekingQuery.toLowerCase()))
+                      .map((skill) => (
+                        <label key={skill} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={filters.seeking.includes(skill)}
+                            onChange={(e) => {
+                              setFilters(prev => ({
+                                ...prev,
+                                seeking: e.target.checked
+                                  ? [...prev.seeking, skill]
+                                  : prev.seeking.filter(s => s !== skill)
+                              }));
+                            }}
+                            className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+                          />
+                          <span className="text-sm text-gray-700">{skill}</span>
+                        </label>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -368,9 +345,7 @@ const Explore = () => {
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         className="flex items-center justify-between w-32 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
                       >
-                        <span className="capitalize">
-                          {sortBy === "experience" ? "Experience" : sortBy}
-                        </span>
+                        <span className="capitalize">{sortBy}</span>
                         <ChevronDown
                           className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
                             isDropdownOpen ? "rotate-180" : ""
@@ -384,8 +359,6 @@ const Explore = () => {
                           <div className="py-1">
                             {[
                               { value: "name", label: "Name" },
-                              { value: "rating", label: "Rating" },
-                              { value: "experience", label: "Experience" },
                             ].map((option) => (
                               <button
                                 key={option.value}
@@ -415,16 +388,14 @@ const Explore = () => {
                         sortOrder === "asc" ? "Descending" : "Ascending"
                       }`}
                     >
-                      <span className="text-sm font-medium">
-                        {sortOrder === "asc" ? "Ascending" : "Descending"}
-                      </span>
+                      <span className="text-sm font-medium">{sortOrder === "asc" ? "Ascending" : "Descending"}</span>
                       <span className="text-lg">
                         {sortOrder === "asc" ? "↑" : "↓"}
                       </span>
                     </button>
                   </div>
                   <div className="text-sm text-gray-500">
-                    {sortedProfiles.length} talents found
+                    {visibleProfiles.length} talents found
                   </div>
                 </div>
               </div>
@@ -456,22 +427,19 @@ const Explore = () => {
                     className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-4">
-                      {/* Profile Image */}
-                      <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 relative">
-                        <span className="text-white font-bold text-lg">
-                          <button>
+                      {/* Avatar */}
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center flex-shrink-0 ring-2 ring-orange-200">
+                        {profile.profileImage ? (
+                          <img src={profile.profileImage} alt={profile.name} className="w-full h-full rounded-full object-cover" />
+                        ) : (
+                          <span className="text-white font-bold">
                             {profile.name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
                               .toUpperCase()}
-                          </button>
-                        </span>
-                        {/* Rating Badge */}
-                        <div className="absolute -top-2 -left-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-current" />
-                          {profile.rating}
-                        </div>
+                          </span>
+                        )}
                       </div>
 
                       {/* Profile Info */}
@@ -484,10 +452,7 @@ const Explore = () => {
                                 {profile.name}
                               </h4>
                             </button>
-                            <div className="flex items-center gap-1 text-sm text-gray-600 mb-3">
-                              <MapPin className="w-4 h-4" />
-                              <span>{profile.location}</span>
-                            </div>
+                            {/* Location removed */}
                           </div>
                         </div>
 
@@ -587,8 +552,7 @@ const Explore = () => {
 
                 {/* Page Info */}
                 <div className="text-sm text-gray-600">
-                  Page {currentPage} of {totalPages} ({sortedProfiles.length}{" "}
-                  total results)
+                  Page {currentPage} of {totalPages} ({visibleProfiles.length} total results)
                 </div>
               </div>
             )}

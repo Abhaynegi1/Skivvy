@@ -28,6 +28,7 @@ const Profile = () => {
   const [captionDraft, setCaptionDraft] = useState('');
   const [editingItemId, setEditingItemId] = useState(null);
   const [menuOpenId, setMenuOpenId] = useState(null);
+  const [lightboxItem, setLightboxItem] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState(null);
   const { show } = useToast();
@@ -402,8 +403,12 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-4">
                 {user.portfolio.map((item, index) => (
                   <div key={item._id || index} className="relative bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                    <div className="relative w-full aspect-square">
-                      <img 
+                    <button
+                      type="button"
+                      onClick={() => setLightboxItem(item)}
+                      className="relative w-full aspect-square focus:outline-none"
+                    >
+                      <img
                         src={`${import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000'}${item.image}`}
                         alt={item.caption || 'Portfolio item'}
                         className="absolute inset-0 w-full h-full object-cover"
@@ -436,7 +441,7 @@ const Profile = () => {
                           </div>
                         )}
                       </div>
-                    </div>
+                    </button>
                     {item.caption && (
                       <div className="p-4 border-t border-orange-100 bg-white">
                         <p className="text-base font-medium text-gray-800">{item.caption}</p>
@@ -595,6 +600,41 @@ const Profile = () => {
                   Delete
                 </button>
               </div>
+      </div>
+      </div>
+        </div>
+      )}
+
+      {/* Post Lightbox */}
+      {lightboxItem && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50"
+          onClick={() => setLightboxItem(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative bg-black">
+              <img
+                src={`${import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000'}${lightboxItem.image}`}
+                alt={lightboxItem.caption || 'Post'}
+                className="w-full max-h-[70vh] object-contain bg-black"
+              />
+              <button
+                className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white shadow"
+                onClick={() => setLightboxItem(null)}
+                aria-label="Close"
+              >
+                <X className="w-5 h-5 text-gray-800" />
+              </button>
+            </div>
+            <div className="p-4">
+              {lightboxItem.caption ? (
+                <p className="text-gray-800 text-base leading-relaxed">{lightboxItem.caption}</p>
+              ) : (
+                <p className="text-gray-500 text-sm">No caption</p>
+              )}
       </div>
       </div>
         </div>

@@ -47,6 +47,13 @@ const getAuthHeaders = () => {
   };
 };
 
+// Broadcast helper for user updates
+export const notifyUserUpdate = (user) => {
+  try {
+    window.dispatchEvent(new CustomEvent('user-updated', { detail: user }));
+  } catch {}
+};
+
 // Auth API functions
 export const authAPI = {
   // Register new user
@@ -116,7 +123,14 @@ export const authAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(profileData)
     });
-    return response.json();
+    const data = await response.json();
+    if (data?.success && data?.user) {
+      try {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      } catch {}
+      notifyUserUpdate(data.user);
+    }
+    return data;
   },
 
   // Upload profile picture
@@ -132,7 +146,22 @@ export const authAPI = {
       },
       body: formData
     });
-    return response.json();
+    const data = await response.json();
+    if (data?.success && data?.profileImage) {
+      try {
+        const current = authAPI.getCurrentUser();
+        const updated = {
+          ...current,
+          profile: {
+            ...(current?.profile || {}),
+            profileImage: data.profileImage
+          }
+        };
+        localStorage.setItem('user', JSON.stringify(updated));
+        notifyUserUpdate(updated);
+      } catch {}
+    }
+    return data;
   },
 
   // Upload portfolio image
@@ -173,6 +202,14 @@ export const authAPI = {
       headers: {
         'Authorization': `Bearer ${token}`
       }
+    });
+    return response.json();
+  },
+
+  // List users (public fields only)
+  listUsers: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/auth/users`, {
+      method: 'GET'
     });
     return response.json();
   }

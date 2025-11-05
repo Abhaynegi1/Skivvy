@@ -16,6 +16,16 @@ const Header = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const API_BASE_URL = import.meta.env.PROD
+    ? 'https://skivvy-backend.onrender.com'
+    : 'http://localhost:5000';
+
+  const getAvatarSrc = () => {
+    const img = user?.profile?.profileImage;
+    if (!img) return null;
+    return img.startsWith('http') ? img : `${API_BASE_URL}${img}`;
+  };
+
   // Fetch user data & auth status
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -59,6 +69,17 @@ const Header = () => {
 
     const handleStorageChange = () => checkAuthStatus();
     window.addEventListener("storage", handleStorageChange);
+    // React immediately to in-app profile updates (same tab)
+    const handleUserUpdated = (e) => {
+      const updated = e?.detail;
+      if (updated) {
+        setIsAuthenticated(true);
+        setUser(updated);
+      } else {
+        checkAuthStatus();
+      }
+    };
+    window.addEventListener('user-updated', handleUserUpdated);
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
@@ -114,23 +135,36 @@ const Header = () => {
             <div className="relative profile-dropdown">
               <button
                 onClick={toggleProfileDropdown}
-                className="flex items-center gap-2 bg-orange-100 hover:bg-orange-200 duration-300 text-orange-600 py-2 px-4 font-semibold rounded-2xl"
+                className="flex items-center gap-3 bg-orange-100 hover:bg-orange-200 duration-300 text-orange-600 py-1.5 pl-1.5 pr-3 font-semibold rounded-2xl"
               >
-                <User className="w-5 h-5" />
-                <span>
-                  {loading ? "Loading..." : user?.username || "Profile"}
-                </span>
+                {getAvatarSrc() ? (
+                  <img
+                    src={getAvatarSrc()}
+                    alt="Profile"
+                    className="w-9 h-9 rounded-full object-cover border border-orange-200 bg-white ring-2 ring-orange-200"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-orange-200 text-orange-700 grid place-items-center ring-2 ring-orange-200">
+                    <User className="w-4 h-4" />
+                  </div>
+                )}
+                <span className="hidden sm:inline max-w-[120px] truncate">{loading ? 'Loading...' : (user?.displayName || user?.username || 'User')}</span>
               </button>
 
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-slideDown">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {loading ? "Loading..." : user?.username || "User"}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {loading ? "Please wait..." : user?.email || "No email"}
-                    </p>
+                  <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-3">
+                    {getAvatarSrc() ? (
+                      <img src={getAvatarSrc()} alt="Avatar" className="w-9 h-9 rounded-full object-cover border border-gray-200" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-orange-200 text-orange-700 grid place-items-center">
+                        <User className="w-4 h-4" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">{user?.displayName || user?.username || 'User'}</p>
+                      <p className="text-xs text-gray-500">{user?.email || ''}</p>
+                    </div>
                   </div>
 
                   <button

@@ -247,6 +247,29 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
+// Public: list users with public profile fields
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'username displayName profile createdAt').lean();
+    const sanitized = users.map(u => ({
+      id: u._id,
+      username: u.username,
+      displayName: u.displayName,
+      profile: {
+        bio: u.profile?.bio || '',
+        skillsOffered: u.profile?.skillsOffered || [],
+        skillsSeeking: u.profile?.skillsSeeking || [],
+        profileImage: u.profile?.profileImage || null,
+      },
+      createdAt: u.createdAt,
+    }));
+    res.json({ success: true, users: sanitized });
+  } catch (error) {
+    console.error('List users error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 // Update user profile (protected route)
 router.put('/profile', verifyToken, async (req, res) => {
   try {
