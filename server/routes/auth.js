@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const User = require('../models/User');
+const Post = require('../models/Post');
 const router = express.Router();
 
 // Configure multer for profile picture uploads
@@ -446,6 +447,16 @@ router.post('/portfolio', verifyToken, portfolioUpload.single('portfolioImage'),
 
     user.portfolio.push(portfolioItem);
     await user.save();
+
+    // Create a post for the community feed
+    const post = new Post({
+      user: req.userId,
+      image: `/uploads/portfolio/${req.file.filename}`,
+      caption: req.body.caption || '',
+      likes: [],
+      comments: []
+    });
+    await post.save();
 
     res.json({
       success: true,
