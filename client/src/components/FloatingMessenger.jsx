@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, ChevronDown, X } from "lucide-react";
 import { chatAPI, authAPI } from "../utils/api";
+import {motion} from 'framer-motion';
 
 const FloatingMessenger = () => {
   const navigate = useNavigate();
@@ -73,6 +74,10 @@ const FloatingMessenger = () => {
     <div className="fixed bottom-6 right-6 z-50">
       {/* Panel */}
       {open && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{duration: 0.2}}>
         <div className="mb-3 w-96 rounded-2xl shadow-2xl border border-gray-200 bg-white overflow-hidden">
           <div className="px-4 py-3 flex items-center justify-between border-b border-gray-200">
             <div className="flex items-center gap-2 font-semibold text-gray-800">
@@ -126,6 +131,7 @@ const FloatingMessenger = () => {
             <ChevronDown className="w-3 h-3" />
           </div>
         </div>
+        </motion.div>
       )}
 
       {/* FAB */}

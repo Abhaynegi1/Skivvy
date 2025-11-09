@@ -7,6 +7,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ProfilePictureUpload from "../components/ProfilePictureUpload";
 
 const Profile = () => {
+  useEffect(() => {
+    window.scrollTo(0,0);
+  })
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
