@@ -55,17 +55,17 @@ mark {
 
 /* === Light Theme Variables === */
 :root {
-  --background: 210 20% 98%;            /* slate-50 */
+  --background: 36 100% 85%;            /* slate-50  210 20% 98%*/
   --foreground: 222 47% 11%;            /* slate-900 */
-  --color-main: white;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --color-main: orange;
+  --card: 0 0% 100%;                 /*  197 31% 43% */
+  --card-foreground: 210 40% 98%;       /* very light desaturated blue*/
 
   --primary: 243 75% 59%;               /* indigo-600 */
   --primary-foreground: 0 0% 100%;      /* white */
 
   --secondary: 160 84% 39%;             /* emerald-500 */
-  --secondary-foreground: 0 0% 100%;
+  --secondary-foreground: 0 0% 50%;
 
   --muted: 210 20% 94%;
   --muted-foreground: 215 16% 47%;
@@ -77,17 +77,17 @@ mark {
 
 /* === Dark Theme Variables === */
 .dark {
-  --background: 222 47% 11%;            /* slate-950 */
+  --background: 0 0% 0%;            /* slate-950 */
   --foreground: 210 40% 98%;            /* slate-50 */
-  --color-main: white;
-  --card: 222 47% 15%;
-  --card-foreground: 210 40% 98%;
+  --color-main: orange;
+  --card: 222 47% 15%;                  /*222 47% 15%*/
+  --card-foreground: 222 47% 11%;       /* very dark desaturated blue*/
 
   --primary: 234 85% 75%;               /* indigo-400 */
   --primary-foreground: 0 0% 100%;
 
   --secondary: 158 64% 52%;             /* emerald-400 */
-  --secondary-foreground: 0 0% 100%;
+  --secondary-foreground: 0 0% 50%;
 
   --muted: 222 47% 18%;
   --muted-foreground: 215 20% 70%;

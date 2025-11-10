@@ -121,7 +121,7 @@ const Header = () => {
         {/* Logo */}
         <Link
           to="/home"
-          className="text-3xl font-bold text-primary-accent tracking-wide"
+          className="text-3xl font-bold text-[var(--color-main)] tracking-wide"
         >
           Skivvy
         </Link>

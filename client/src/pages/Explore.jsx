@@ -226,7 +226,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-orange-100">
+    <div className="min-h-screen bg-background">
       {/* Main Content Area */}
       <div className="w-full px-4 py-6 pt-24">
         <div className="flex flex-col lg:flex-row gap-3">
@@ -238,13 +238,13 @@ const Explore = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-white rounded-3xl shadow-lg border border-gray-200 p-6">
+              <div className="bg-card/70 backdrop:blur-lg rounded-3xl shadow-lg border p-6">
                 {/* Filter Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <Funnel className="w-5 h-5 text-orange-600" />
+                  <div className="p-2 bg-background rounded-xl">
+                    <Funnel className="w-5 h-5 text-card-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-text-primary">
                     Filters
                   </h3>
                 </div>
@@ -252,14 +252,14 @@ const Explore = () => {
                 {/* Skills Offered Filter */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-2">
-                    <BookOpen className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm font-medium text-gray-700">Skills Offered</h4>
+                    <BookOpen className="w-4 h-4 text-text-primary" />
+                    <h4 className="text-sm font-medium text-text-primary">Skills Offered</h4>
                   </div>
                   <input
                     value={offeredQuery}
                     onChange={(e) => setOfferedQuery(e.target.value)}
                     placeholder="Search skills..."
-                    className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full mb-2 px-3 py-2 border text-primary-foreground rounded-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {popularSkills
@@ -279,7 +279,7 @@ const Explore = () => {
                             }}
                             className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                           />
-                          <span className="text-sm text-gray-700">{skill}</span>
+                          <span className="text-sm text-text-primary">{skill}</span>
                         </label>
                       ))}
                   </div>
@@ -288,14 +288,14 @@ const Explore = () => {
                 {/* Skills Seeking Filter */}
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <BookOpen className="w-4 h-4 text-gray-600" />
-                    <h4 className="text-sm font-medium text-gray-700">Skills Seeking</h4>
+                    <BookOpen className="w-4 h-4 text-text-primary" />
+                    <h4 className="text-sm font-medium text-text-primary">Skills Seeking</h4>
                   </div>
                   <input
                     value={seekingQuery}
                     onChange={(e) => setSeekingQuery(e.target.value)}
                     placeholder="Search skills..."
-                    className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                    className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                   />
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {popularSkills
@@ -315,7 +315,7 @@ const Explore = () => {
                             }}
                             className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                           />
-                          <span className="text-sm text-gray-700">{skill}</span>
+                          <span className="text-sm text-text-primary">{skill}</span>
                         </label>
                       ))}
                   </div>
@@ -332,10 +332,10 @@ const Explore = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-white rounded-3xl border border-gray-200 p-3 mb-4 shadow-lg">
+              <div className="bg-card/70 backdrop:blur-lg rounded-3xl p-3 mb-4 shadow-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm font-semibold text-text-primary">
                       Sort by:
                     </label>
 
@@ -343,7 +343,7 @@ const Explore = () => {
                     <div className="relative" ref={dropdownRef}>
                       <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center justify-between w-32 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200"
+                        className="flex items-center justify-between w-32 px-3 py-2 text-sm font-medium text-text-secondry bg-card border border-gray-300 rounded-xl shadow-sm hover:bg-card-foreground focus:outline-none focus:ring-2 focus:ring-card-foreground focus:border-card-foreground transition-all duration-200"
                       >
                         <span className="capitalize">{sortBy}</span>
                         <ChevronDown
@@ -428,7 +428,7 @@ const Explore = () => {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleGotoPeople(profile); }}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-card/70 backdrop:blue-lg rounded-3xl shadow-sm  p-6 hover:shadow-md transition-shadow cursor-pointer"
                     aria-label={`Open ${profile.name}'s profile`}
                   >
                     <div className="flex items-start gap-4">
@@ -451,7 +451,7 @@ const Explore = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <h4 className="text-lg font-semibold text-gray-900 mb-1">
+                            <h4 className="text-lg font-semibold text-text-primary mb-1">
                               {profile.name}
                             </h4>
                             {/* Location removed */}
@@ -460,7 +460,7 @@ const Explore = () => {
 
                         {/* Bio */}
                         <div className="mb-4">
-                          <p className="text-sm text-gray-700 leading-relaxed">
+                          <p className="text-sm text-secondary-foreground leading-relaxed">
                             {profile.bio}
                           </p>
                         </div>

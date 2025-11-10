@@ -7,7 +7,7 @@ const Landing = () => {
   const trending = ["Photography", "Coding", "Marketing", "Spanish"];
 
   return (
-    <div className="bg-background text-text-primary min-h-screen overflow-hidden">
+    <div className="bg-white dark:bg-black text-text-primary min-h-screen overflow-hidden">
       {/* HERO SECTION */}
       <motion.section
         initial={{ opacity: 0, y: -20 }}
@@ -20,7 +20,7 @@ const Landing = () => {
           <Silk
             speed={5}
             scale={1}
-            color="#87CEEB"
+            color="#FFA500"
             noiseIntensity={1.5}
             rotation={1}
             className="w-full h-full"
@@ -76,7 +76,7 @@ const Landing = () => {
           transition={{ duration: 0.6 }}
           className="text-4xl sm:text-5xl font-bold mb-6 text-center"
         >
-          About <span className="text-accent">Skivvy</span>
+          About <span className="text-[var(--color-main)]">Skivvy</span>
         </motion.h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl w-full mt-16">
@@ -102,14 +102,14 @@ const Landing = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.2 }}
-              className="bg-card p-6 rounded-2xl shadow-lg border border-border hover:shadow-accent/20 hover:-translate-y-1 transition-all duration-300 backdrop-blur-md"
+              className="bg-orange-100 dark:bg-[#131B38] p-6 rounded-2xl shadow-lg border border-border hover:shadow-accent/20 hover:-translate-y-3 transition-all duration-300 backdrop-blur-lg"
             >
               <div className="flex flex-col items-center text-center">
                 {item.icon}
-                <h3 className="text-xl font-semibold mb-2 text-text-primary">
+                <h3 className="text-xl font-semibold mb-2 text-[var(--color-main)]">
                   {item.title}
                 </h3>
-                <p className="text-text-secondary text-sm">{item.text}</p>
+                <p className="text-text-primary text-sm">{item.text}</p>
               </div>
             </motion.div>
           ))}
