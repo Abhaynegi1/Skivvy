@@ -238,7 +238,7 @@ const Explore = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-card/70 backdrop:blur-lg rounded-3xl shadow-lg border p-6">
+              <div className="bg-card/70 backdrop:blur-lg rounded-3xl shadow-lg p-6">
                 {/* Filter Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-background rounded-xl">
@@ -343,11 +343,11 @@ const Explore = () => {
                     <div className="relative" ref={dropdownRef}>
                       <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center justify-between w-32 px-3 py-2 text-sm font-medium text-text-secondry bg-card border border-gray-300 rounded-xl shadow-sm hover:bg-card-foreground focus:outline-none focus:ring-2 focus:ring-card-foreground focus:border-card-foreground transition-all duration-200"
+                        className="flex items-center justify-between w-32 px-3 py-2 text-sm font-medium text-text-secondary bg-card border border-gray-300 rounded-xl shadow-sm hover:bg-background focus:outline-none focus:ring-2 focus:ring-card-foreground focus:border-card-foreground transition-all duration-200"
                       >
                         <span className="capitalize">{sortBy}</span>
                         <ChevronDown
-                          className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${
+                          className={`w-4 h-4 text-text-secondary transition-transform duration-200 ${
                             isDropdownOpen ? "rotate-180" : ""
                           }`}
                         />
@@ -355,7 +355,7 @@ const Explore = () => {
 
                       {/* Dropdown Menu */}
                       {isDropdownOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg animate-in slide-in-from-top-2 duration-200">
+                        <div className="absolute z-50 w-full mt-1 bg-card rounded-md shadow-lg animate-in slide-in-from-top-2 duration-200">
                           <div className="py-1">
                             {[
                               { value: "name", label: "Name" },
@@ -365,9 +365,9 @@ const Explore = () => {
                                 onClick={() =>
                                   handleDropdownSelect(option.value)
                                 }
-                                className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 ${
+                                className={`w-full px-3 py-2 text-sm text-left hover:bg-background transition-colors duration-150 ${
                                   sortBy === option.value
-                                    ? "bg-orange-50 text-orange-700 font-medium"
+                                    ? "bg-card text-text-secondary font-medium"
                                     : "text-gray-700"
                                 }`}
                               >
@@ -383,7 +383,7 @@ const Explore = () => {
                       onClick={() =>
                         setSortOrder(sortOrder === "asc" ? "desc" : "asc")
                       }
-                      className="px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 border border-gray-300 rounded-md transition-all duration-200 flex items-center gap-1"
+                      className="px-3 py-1.5 text-text-secondary hover:text-text-secondary hover:bg-background border border-gray-300 rounded-full transition-all duration-200 flex items-center gap-1"
                       title={`Sort ${
                         sortOrder === "asc" ? "Descending" : "Ascending"
                       }`}

@@ -41,7 +41,7 @@ const Landing = () => {
 
           {/* Search bar */}
           <div className="mt-10 flex flex-col items-center w-full">
-            <form className="w-[90%] sm:w-3/4 md:w-1/2 flex items-center bg-card border border-border rounded-full px-4 py-2 shadow-md backdrop-blur-lg">
+            <form className="w-[90%] sm:w-3/4 md:w-1/2 flex items-center bg-card border border-border rounded-full px-4 py-2 shadow-md backdrop-blur-3xl">
               <Search className="text-text-secondary w-5 h-5 mr-2" />
               <input
                 className="flex-1 bg-transparent outline-none text-text-primary placeholder:text-text-muted"
@@ -102,7 +102,7 @@ const Landing = () => {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + i * 0.2 }}
-              className="bg-orange-100 dark:bg-[#131B38] p-6 rounded-2xl shadow-lg border border-border hover:shadow-accent/20 hover:-translate-y-3 transition-all duration-300 backdrop-blur-lg"
+              className="bg-orange-100 dark:bg-[#dd6b20]/30 p-6 rounded-2xl shadow-lg  hover:shadow-accent/20 hover:-translate-y-3 transition-all duration-300 backdrop-blur-lg"
             >
               <div className="flex flex-col items-center text-center">
                 {item.icon}

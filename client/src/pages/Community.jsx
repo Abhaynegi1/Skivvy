@@ -132,23 +132,24 @@ const Community = () => {
   };
 
   return (
-    <div className="mt-20 flex justify-center h-screen bg-orange-100 w-full">
+    <div className="mt-20 flex justify-center bg-background w-full min-h-screen pb-10">
       {/* MAIN CONTENT */}
-      <div className="hero bg-white rounded-3xl mt-4 flex flex-col overflow-y-auto shadow-lg w-full max-w-4xl mx-4">
+      {/* <div className="hero bg-card backdrop-blur-lg rounded-3xl mt-4 flex flex-col overflow-y-auto shadow-lg w-full max-w-4xl mx-4"> */}
+      <div className="hero bg-card backdrop-blur-lg rounded-3xl mt-4 flex flex-col shadow-lg w-full max-w-4xl mx-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="p-6"
         >
-          <h2 className="text-3xl font-bold text-gray-800 mb-6">Community Feed</h2>
+          <h2 className="text-3xl font-bold text-text-primary mb-6">Community Feed</h2>
           
           {loading ? (
             <div className="flex justify-center items-center py-20">
-              <div className="text-gray-500">Loading posts...</div>
+              <div className="text-text-primary">Loading posts...</div>
             </div>
           ) : posts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-20 text-text-primary">
               <p className="text-xl mb-4">No posts yet!</p>
               <p className="text-sm">Be the first to share your work with the community.</p>
             </div>
@@ -157,12 +158,12 @@ const Community = () => {
               {posts.map((post) => (
                 <div
                   key={post._id}
-                  className="bg-white border border-orange-200 rounded-2xl shadow-md overflow-hidden"
+                  className="bg-card rounded-2xl shadow-md overflow-hidden"
                 >
                   {/* Post Header */}
-                  <div className="flex items-center justify-between p-4 border-b border-orange-100">
+                  <div className="flex items-center justify-between p-4 ">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-orange-200 overflow-hidden flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-card overflow-hidden flex items-center justify-center">
                         {post.user.profileImage ? (
                           <img
                             src={`${API_BASE_URL}${post.user.profileImage}`}
@@ -170,25 +171,25 @@ const Community = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <span className="text-orange-600 font-semibold">
+                          <span className="text-orange-500 font-semibold">
                             {post.user.username?.[0]?.toUpperCase() || 'U'}
                           </span>
                         )}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-800">
+                        <p className="font-semibold text-text-secondary">
                           {post.user.displayName || post.user.username}
                         </p>
                         <p className="text-xs text-gray-500">{formatDate(post.createdAt)}</p>
                       </div>
                     </div>
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button className="text-gray-400 hover:text-border">
                       <MoreVertical className="w-5 h-5" />
                     </button>
                   </div>
 
                   {/* Post Image */}
-                  <div className="w-full bg-gray-100">
+                  <div className="w-full bg-card">
                     <img
                       src={`${API_BASE_URL}${post.image}`}
                       alt={post.caption || 'Post'}
@@ -220,7 +221,7 @@ const Community = () => {
                     {/* Caption */}
                     {post.caption && (
                       <div className="mb-3">
-                        <p className="text-gray-800">
+                        <p className="text-text-primary">
                           <span className="font-semibold mr-2">
                             {post.user.displayName || post.user.username}
                           </span>
@@ -277,7 +278,7 @@ const Community = () => {
                               }
                             }}
                             placeholder="Add a comment..."
-                            className="flex-1 px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                            className="flex-1 px-4 py-2 border border- rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
                           />
                           <button
                             onClick={() => handleComment(post._id)}

@@ -77,11 +77,11 @@ mark {
 
 /* === Dark Theme Variables === */
 .dark {
-  --background: 0 0% 0%;            /* slate-950 */
+  --background: 32 60% 15%;            /* slate-950 */
   --foreground: 210 40% 98%;            /* slate-50 */
   --color-main: orange;
-  --card: 222 47% 15%;                  /*222 47% 15%*/
-  --card-foreground: 222 47% 11%;       /* very dark desaturated blue*/
+  --card: 0 0% 0%;                  /*222 47% 15%*/
+  --card-foreground: 222 47% 91%;       /* very dark desaturated blue*/
 
   --primary: 234 85% 75%;               /* indigo-400 */
   --primary-foreground: 0 0% 100%;
@@ -92,7 +92,7 @@ mark {
   --muted: 222 47% 18%;
   --muted-foreground: 215 20% 70%;
 
-  --border: 222 47% 20%;
+  --border: 27.11 60% 46.86%;
   --input: 222 47% 20%;
   --ring: 234 85% 75%;
 }
