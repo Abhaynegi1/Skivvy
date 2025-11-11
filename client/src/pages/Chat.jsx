@@ -93,24 +93,24 @@ const Chat = () => {
   };
 
   return (
-    <div className="bg-orange-100 min-h-screen mt-20 pt-1 flex justify-center">
-      <div className="max-w-screen-xl bg-white shadow-lg flex h-[calc(100vh-5rem)] overflow-hidden">
+    <div className="bg-background min-h-fit mt-20 pt-1 flex justify-center">
+      <div className="max-w-screen bg-card shadow-lg flex h-[calc(100vh-5rem)] overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-96 border-r border-orange-200 bg-gray-300/70 flex flex-col">
+        <aside className="w-96 border-r border-border bg-card flex flex-col backdrop:blur-lg">
           <div className="p-3 border-b border-gray-200 flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="w-9 h-9 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center"
+              className="w-9 h-9 rounded-full bg-orange-500 hover:bg-orange-600 text-text-primary flex items-center justify-center"
               aria-label="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="font-semibold text-gray-800 text-lg">Messages</div>
+            <div className="font-semibold text-text-primary text-lg">Messages</div>
           </div>
           <div className="p-2">
             <input
               placeholder="Search"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-4 py-2 border border-border rounded-full focus:ring-2 focus:ring-orange-500 focus:border-orange-500 duration-300 bg-card/70"
             />
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -118,9 +118,9 @@ const Chat = () => {
               <button
                 key={t.id}
                 onClick={() => selectThread(t)}
-                className={`w-full flex items-center gap-3 px-4 py-4 hover:bg-gray-300 text-left ${
+                className={`w-full flex items-center gap-3 px-4 py-4 hover:bg-background text-left ${
                   peer && t.name === (peer.displayName || peer.username)
-                    ? "bg-gray-300"
+                    ? "bg-orange-300"
                     : ""
                 }`}
               >
@@ -142,7 +142,7 @@ const Chat = () => {
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="font-medium text-gray-900 truncate text-base">
+                  <div className="font-medium text-text-primary truncate text-base">
                     {t.name}
                   </div>
                   <div className="text-xs text-gray-500 truncate">{t.last}</div>
@@ -163,7 +163,7 @@ const Chat = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <span className="text-orange-700 font-semibold text-sm">
+                <span className="text-text-primary font-semibold text-sm">
                   {(peer ? peer.displayName || peer.username : "Chat")
                     .split(" ")
                     .map((n) => n[0])
@@ -172,13 +172,13 @@ const Chat = () => {
                 </span>
               )}
             </div>
-            <div className="font-semibold text-gray-800 text-lg">
+            <div className="font-semibold text-text-primary text-lg">
               {peer ? peer.displayName || peer.username : "Chat"}
             </div>
           </div>
           <div
             ref={messagesRef}
-            className="flex-1 overflow-y-auto p-4 space-y-3 bg-white"
+            className="flex-1 overflow-y-auto p-4 space-y-3 bg-card"
           >
             {messages.map((m, index) => {
               const isMine = String(m.sender) === String(currentUser?.id);
@@ -223,7 +223,7 @@ const Chat = () => {
                     }`}
                   >
                     <div
-                      className={`relative inline-block max-w-[70%] px-3 py-2 rounded-lg break-words whitespace-pre-wrap ${
+                      className={`relative inline-block max-w-[70%] px-3 py-2 rounded-full break-words whitespace-pre-wrap ${
                         isMine
                           ? "bg-orange-500 text-white"
                           : "bg-gray-300 text-gray-800 border border-gray-200"
@@ -308,7 +308,7 @@ const Chat = () => {
 
             <div ref={bottomRef} />
           </div>
-          <div className="p-4 border-t border-gray-200 flex gap-3">
+          <div className="p-4 flex gap-3">
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -316,11 +316,11 @@ const Chat = () => {
                 if (e.key === "Enter") sendMessage();
               }}
               placeholder="Message..."
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-full bg-card focus:ring-2 focus:ring-orange-500 focus:border-orange-500 duration-300"
             />
             <button
               onClick={sendMessage}
-              className="px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
+              className="px-5 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full"
             >
               Send
             </button>

@@ -208,7 +208,7 @@ const Header = () => {
             <div className="flex gap-3 ml-3">
               <button
                 onClick={() => navigate("/signup")}
-                className="bg-primary-accent hover:bg-surface hover:text-primary-accent duration-300 text-white py-2 px-4 font-bold rounded-2xl"
+                className="bg-primary-accent hover:bg-surface hover:text-primary-accent duration-300 text-orange-500 py-2 px-4 font-bold rounded-2xl"
               >
                 Sign up
               </button>
