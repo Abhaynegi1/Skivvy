@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { authAPI, chatAPI } from "../utils/api";
 import { ArrowLeft, MoreVertical } from "lucide-react";
+import { useSocket } from "../hooks/useSocket";
 
 const Chat = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { socket, connected } = useSocket();
   const [peer, setPeer] = useState(null);
   const [threads, setThreads] = useState([]); // left sidebar
   const [messages, setMessages] = useState([]);
@@ -66,13 +68,99 @@ const Chat = () => {
     messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
   }, [messages]);
 
+  // Socket event listeners
+  useEffect(() => {
+    if (!socket || !connected) return;
+
+    const handleMessageReceived = (data) => {
+      if (data.conversationId === conversationId) {
+        setMessages((prev) => {
+          // Check if message already exists (avoid duplicates)
+          const exists = prev.some(m => String(m._id || m.id) === String(data.message._id || data.message.id));
+          if (exists) return prev;
+          return [...prev, data.message];
+        });
+      }
+    };
+
+    const handleMessageEdited = (data) => {
+      if (data.conversationId === conversationId) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            String(m._id || m.id) === String(data.messageId)
+              ? { ...m, text: data.message.text }
+              : m
+          )
+        );
+      }
+    };
+
+    const handleMessageDeleted = (data) => {
+      if (data.conversationId === conversationId) {
+        setMessages((prev) =>
+          prev.filter((m) => String(m._id || m.id) !== String(data.messageId))
+        );
+      }
+    };
+
+    const handleConversationUpdated = (data) => {
+      setThreads((prev) =>
+        prev.map((t) =>
+          t.id === data.conversationId
+            ? { ...t, last: data.lastMessage?.text || "" }
+            : t
+        )
+      );
+    };
+
+    const handleError = (error) => {
+      console.error('Socket error:', error);
+    };
+
+    socket.on('message_received', handleMessageReceived);
+    socket.on('message_edited', handleMessageEdited);
+    socket.on('message_deleted', handleMessageDeleted);
+    socket.on('conversation_updated', handleConversationUpdated);
+    socket.on('error', handleError);
+
+    return () => {
+      socket.off('message_received', handleMessageReceived);
+      socket.off('message_edited', handleMessageEdited);
+      socket.off('message_deleted', handleMessageDeleted);
+      socket.off('conversation_updated', handleConversationUpdated);
+      socket.off('error', handleError);
+    };
+  }, [socket, connected, conversationId]);
+
+  // Join/leave conversation room when conversationId changes
+  useEffect(() => {
+    if (!socket || !connected || !conversationId) return;
+
+    socket.emit('join_conversation', conversationId);
+
+    return () => {
+      socket.emit('leave_conversation', conversationId);
+    };
+  }, [socket, connected, conversationId]);
+
   const sendMessage = async () => {
     const trimmed = input.trim();
     if (!trimmed || !conversationId) return;
-    const resp = await chatAPI.sendMessage(conversationId, trimmed);
-    if (resp?.success) {
-      setMessages((prev) => [...prev, resp.message]);
+
+    if (socket && connected) {
+      // Send via socket for real-time
+      socket.emit('new_message', {
+        conversationId,
+        text: trimmed
+      });
       setInput("");
+    } else {
+      // Fallback to REST API if socket not connected
+      const resp = await chatAPI.sendMessage(conversationId, trimmed);
+      if (resp?.success) {
+        setMessages((prev) => [...prev, resp.message]);
+        setInput("");
+      }
     }
   };
 
@@ -106,6 +194,7 @@ const Chat = () => {
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="font-semibold text-text-primary text-lg">Messages</div>
+            <div className={`ml-auto w-2 h-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} title={connected ? 'Connected' : 'Disconnected'} />
           </div>
           <div className="p-2">
             <input
@@ -252,20 +341,28 @@ const Chat = () => {
                                   const text = prompt("Edit message", m.text);
                                   setMenuOpenId(null);
                                   if (text != null && text.trim()) {
-                                    const resp = await chatAPI.updateMessage(
-                                      conversationId,
-                                      m._id || m.id,
-                                      text.trim()
-                                    );
-                                    if (resp?.success) {
-                                      setMessages((prev) =>
-                                        prev.map((x) =>
-                                          String(x._id || x.id) ===
-                                          String(m._id || m.id)
-                                            ? { ...x, text: resp.message.text }
-                                            : x
-                                        )
+                                    if (socket && connected) {
+                                      socket.emit('edit_message', {
+                                        conversationId,
+                                        messageId: m._id || m.id,
+                                        text: text.trim()
+                                      });
+                                    } else {
+                                      const resp = await chatAPI.updateMessage(
+                                        conversationId,
+                                        m._id || m.id,
+                                        text.trim()
                                       );
+                                      if (resp?.success) {
+                                        setMessages((prev) =>
+                                          prev.map((x) =>
+                                            String(x._id || x.id) ===
+                                            String(m._id || m.id)
+                                              ? { ...x, text: resp.message.text }
+                                              : x
+                                          )
+                                        );
+                                      }
                                     }
                                   }
                                 }}
@@ -278,18 +375,25 @@ const Chat = () => {
                                   setMenuOpenId(null);
                                   const ok = confirm("Delete this message?");
                                   if (ok) {
-                                    const resp = await chatAPI.deleteMessage(
-                                      conversationId,
-                                      m._id || m.id
-                                    );
-                                    if (resp?.success) {
-                                      setMessages((prev) =>
-                                        prev.filter(
-                                          (x) =>
-                                            String(x._id || x.id) !==
-                                            String(m._id || m.id)
-                                        )
+                                    if (socket && connected) {
+                                      socket.emit('delete_message', {
+                                        conversationId,
+                                        messageId: m._id || m.id
+                                      });
+                                    } else {
+                                      const resp = await chatAPI.deleteMessage(
+                                        conversationId,
+                                        m._id || m.id
                                       );
+                                      if (resp?.success) {
+                                        setMessages((prev) =>
+                                          prev.filter(
+                                            (x) =>
+                                              String(x._id || x.id) !==
+                                              String(m._id || m.id)
+                                          )
+                                        );
+                                      }
                                     }
                                   }
                                 }}

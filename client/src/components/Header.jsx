@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Settings, Menu, X, Sun, Moon } from "lucide-react";
 import { authAPI } from "../utils/api";
-import {motion} from 'framer-motion';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -52,40 +50,106 @@ const Header = () => {
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  // 🔒 Auth check
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setIsAuthenticated(false);
-        setUser(null);
-        localStorage.removeItem("user");
-        return;
-      }
+  // 🔒 Auth check function
+  const checkAuthStatus = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthenticated(false);
+      setUser(null);
+      localStorage.removeItem("user");
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const response = await authAPI.getProfile();
-        if (response.unauthorized || !response.success) {
-          setIsAuthenticated(false);
-          setUser(null);
-          authAPI.logout();
-        } else if (response.success) {
-          setIsAuthenticated(true);
-          setUser(response.user);
-          localStorage.setItem("user", JSON.stringify(response.user));
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
+    setLoading(true);
+    try {
+      const response = await authAPI.getProfile();
+      if (response.unauthorized || !response.success) {
         setIsAuthenticated(false);
         setUser(null);
         authAPI.logout();
-      } finally {
-        setLoading(false);
+      } else if (response.success) {
+        setIsAuthenticated(true);
+        setUser(response.user);
+        localStorage.setItem("user", JSON.stringify(response.user));
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+      authAPI.logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔒 Initial auth check - check localStorage first for faster render
+  useEffect(() => {
+    // Check localStorage first for immediate display
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
+    
+    if (token && storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setIsAuthenticated(true);
+        setUser(userData);
+      } catch (e) {
+        console.error("Error parsing stored user:", e);
+      }
+    }
+
+    // Then verify with API
+    checkAuthStatus();
+  }, []);
+
+  // 🔒 Listen for storage events (login/logout) - both native and manually dispatched
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Immediately check localStorage for faster update
+      const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+      
+      if (token && storedUser) {
+        try {
+          const userData = JSON.parse(storedUser);
+          setIsAuthenticated(true);
+          setUser(userData);
+        } catch (e) {
+          console.error("Error parsing stored user:", e);
+        }
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+      
+      // Then verify with API in background
+      checkAuthStatus();
+    };
+
+    // Listen for both native storage events (other tabs) and manually dispatched events (same tab)
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
+  // 🔒 Listen for user-updated events (profile picture changes, etc.)
+  useEffect(() => {
+    const handleUserUpdate = (event) => {
+      // event.detail is the user object directly (from notifyUserUpdate in api.js)
+      if (event.detail) {
+        setUser(event.detail);
+        setIsAuthenticated(true);
+        localStorage.setItem("user", JSON.stringify(event.detail));
       }
     };
 
-    checkAuthStatus();
+    window.addEventListener("user-updated", handleUserUpdate);
+
+    return () => {
+      window.removeEventListener("user-updated", handleUserUpdate);
+    };
   }, []);
 
   useEffect(() => {
@@ -111,13 +175,13 @@ const Header = () => {
 
   return (
     <header
-      className={`fixed top-4 left-1/2 -translate-x-1/2 w-[95%] z-50 transition-all duration-500
+      className={`fixed top-1 left-0 right-0 z-50 transition-all duration-500
         ${scrolled
-          ? "bg-white/60 dark:bg-black/40 backdrop-blur-lg shadow-lg rounded-2xl py-2 px-6 scale-95"
-          : "bg-transparent py-4 px-6"
+          ? "bg-white/60 dark:bg-black/40 backdrop-blur-lg shadow-lg py-1.5"
+          : "bg-transparent py-1"
         }`}
     >
-      <nav className="flex items-center justify-between">
+      <nav className="flex items-center justify-between px-4 max-w-full">
         {/* Logo */}
         <Link
           to="/home"
@@ -127,8 +191,8 @@ const Header = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-6">
-          <ul className="flex gap-8 items-center">
+        <div className="hidden md:flex items-center gap-3">
+          <ul className="flex gap-4 items-center">
             {navLinks.map((link) => (
               <li key={link.id}>
                 <Link
@@ -144,7 +208,7 @@ const Header = () => {
           {/* 🌙 Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="ml-4 p-2 rounded-full hover:bg-surface/50 transition-colors"
+            className="ml-1 p-1.5 rounded-full hover:bg-surface/50 transition-colors"
             title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
           >
             {theme === "light" ? (
@@ -156,10 +220,10 @@ const Header = () => {
 
           {/* Profile / Auth */}
           {isAuthenticated ? (
-            <div className="relative profile-dropdown ml-3">
+            <div className="relative profile-dropdown ml-1">
               <button
                 onClick={toggleProfileDropdown}
-                className="flex items-center gap-3 bg-primary-accent/10 hover:bg-primary-accent/20 duration-300 text-primary-accent py-1.5 pl-1.5 pr-3 font-semibold rounded-2xl"
+                className="flex items-center gap-1.5 bg-primary-accent/10 hover:bg-primary-accent/20 duration-300 text-primary-accent py-1 pl-1 pr-2 font-semibold rounded-2xl"
               >
                 {getAvatarSrc() ? (
                   <img
@@ -178,10 +242,6 @@ const Header = () => {
               </button>
 
               {showProfileDropdown && (
-                <motion.div
-                  initial={{opacity:0, y: -20}}
-                  animate={{opacity:1, y:0}}
-                  transition={{duration:0.2}}>
                 <div className="absolute right-0 mt-2 w-48 backdrop:blur-lg bg-white/60 dark:bg-black/40 rounded-xl shadow-lg border border-border py-2 z-50">
                   <button
                     onClick={() => {
@@ -201,20 +261,19 @@ const Header = () => {
                     Logout
                   </button>
                 </div>
-                </motion.div>
               )}
             </div>
           ) : (
-            <div className="flex gap-3 ml-3">
+            <div className="flex gap-2 ml-1">
               <button
                 onClick={() => navigate("/signup")}
-                className="bg-primary-accent hover:bg-surface hover:text-primary-accent duration-300 text-orange-500 py-2 px-4 font-bold rounded-2xl"
+                className="bg-primary-accent hover:bg-surface hover:text-primary-accent duration-300 text-orange-500 py-1.5 px-3 font-bold rounded-2xl text-sm"
               >
                 Sign up
               </button>
               <button
                 onClick={() => navigate("/login")}
-                className="bg-secondary-accent/10 hover:bg-surface text-secondary-accent duration-300 font-bold py-2 px-4 rounded-2xl"
+                className="bg-secondary-accent/10 hover:bg-surface text-secondary-accent duration-300 font-bold py-1.5 px-3 rounded-2xl text-sm"
               >
                 Login
               </button>

@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { MessageCircle, ChevronDown, X } from "lucide-react";
 import { chatAPI, authAPI } from "../utils/api";
 import {motion} from 'framer-motion';
+import { useSocket } from "../hooks/useSocket";
 
 const FloatingMessenger = () => {
   const navigate = useNavigate();
+  const { socket, connected } = useSocket();
   const [open, setOpen] = useState(false);
   const [threads, setThreads] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -63,6 +65,60 @@ const FloatingMessenger = () => {
     };
   }, [me]); // Only refetch when user changes
 
+  // Real-time socket updates for conversation list
+  useEffect(() => {
+    if (!socket || !connected) return;
+
+    const handleConversationUpdated = (data) => {
+      setThreads((prev) => {
+        const existingIndex = prev.findIndex(t => String(t.id) === String(data.conversationId));
+        
+        if (existingIndex >= 0) {
+          // Update existing conversation and move to top
+          const updated = [...prev];
+          const conversation = {
+            ...updated[existingIndex],
+            lastMessage: data.lastMessage
+          };
+          updated.splice(existingIndex, 1);
+          return [conversation, ...updated];
+        } else {
+          // Conversation not in list yet - might be a new one, refetch to get full data
+          chatAPI.listConversations().then(list => {
+            if (list?.success) {
+              setThreads(list.conversations || []);
+            }
+          });
+          return prev;
+        }
+      });
+    };
+
+    const handleNewConversation = (data) => {
+      // Add new conversation to the list
+      setThreads((prev) => {
+        // Check if conversation already exists
+        const exists = prev.some(t => t.id === data.conversationId);
+        if (exists) return prev;
+        
+        // Add new conversation at the top
+        return [{
+          id: data.conversationId,
+          peer: data.peer,
+          lastMessage: null
+        }, ...prev];
+      });
+    };
+
+    socket.on('conversation_updated', handleConversationUpdated);
+    socket.on('new_conversation', handleNewConversation);
+
+    return () => {
+      socket.off('conversation_updated', handleConversationUpdated);
+      socket.off('new_conversation', handleNewConversation);
+    };
+  }, [socket, connected]);
+
   const hasUnread = useMemo(() => {
     // naive heuristic: if last message sender is not me, show a dot
     return threads?.some(t => String(t.lastMessage?.sender) !== String(me?.id));
@@ -98,11 +154,12 @@ const FloatingMessenger = () => {
                 <button
                   key={t.id}
                   onClick={() => {
-                    // Optimistically mark as read so the dot disappears
+                    // Mark as read (optimistically update sender to me so unread dot disappears)
                     setThreads(prev => prev.map(x => x.id === t.id
                       ? { ...x, lastMessage: { ...(x.lastMessage || {}), sender: me?.id } }
                       : x
                     ));
+                    setOpen(false);
                     navigate(`/chat/${t.peer?.id || ''}`);
                   }}
                   className="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 text-left"

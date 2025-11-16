@@ -61,6 +61,23 @@ router.post('/conversations', verifyToken, async (req, res) => {
     let convo = await Conversation.findOne({ participants: { $all: [req.userId, userId] } });
     if (!convo) {
       convo = await Conversation.create({ participants: [req.userId, userId] });
+      
+      // Emit new conversation event via socket
+      const io = req.app.get('io');
+      if (io) {
+        const peer = await User.findById(userId).select('username displayName profile.profileImage').lean();
+        [req.userId, userId].forEach(participantId => {
+          io.to(`user:${participantId}`).emit('new_conversation', {
+            conversationId: convo._id,
+            peer: peer ? {
+              id: peer._id,
+              username: peer.username,
+              displayName: peer.displayName,
+              profileImage: peer.profile?.profileImage || null
+            } : null
+          });
+        });
+      }
     }
     res.json({ success: true, conversationId: convo._id });
   } catch (e) {
