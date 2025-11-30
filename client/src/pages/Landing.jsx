@@ -129,7 +129,7 @@ const Landing = () => {
 {/* KINDOF TAGLINE */}
 
       <div className="tagline">
-        <h1 className="text-center text-secondary-accent font-bold text-3xl my-20">👨‍🎓 Learn, Teach, Connect, Grow - the Skivvy way</h1>
+        <h1 className="text-center text-secondary-accent font-bold text-3xl my-20">👨‍🎓 Learn, Teach, Connect, Grow - the Skivvy way </h1>
       </div>
     </div>
   );
