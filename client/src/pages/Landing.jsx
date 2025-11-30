@@ -121,8 +121,15 @@ const Landing = () => {
       </div>
 {/* USAGE SECTION  */}
       <div className="usage"> 
-        <h1 className="text-center text-5xl font-bold my-20">Usage</h1>
+        <h1 className="text-center text-orange-400 text-5xl font-bold mt-20">Usage</h1>
+        <p className="text-center text-secondary-accent text-xl font-semibold mt-8">Follow these three simple steps to get started</p>
         <CanvasRevealEffectDemo/>
+      </div>
+
+{/* KINDOF TAGLINE */}
+
+      <div className="tagline">
+        <h1 className="text-center text-secondary-accent font-bold text-3xl my-20">👨‍🎓 Learn, Teach, Connect, Grow - the Skivvy way</h1>
       </div>
     </div>
   );

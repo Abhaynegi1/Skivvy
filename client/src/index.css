@@ -57,7 +57,7 @@ mark {
 :root {
   --background: 36 100% 85%;            /* slate-50  210 20% 98%*/
   --foreground: 222 47% 11%;            /* slate-900 */
-  --color-main: orange;
+  --color-main: #FFA726;
   --card: 0 0% 100%;                 /*  197 31% 43% */
   --card-foreground: 210 40% 98%;       /* very light desaturated blue*/
 
@@ -79,7 +79,7 @@ mark {
 .dark {
   --background: 32 60% 15%;            /* slate-950 */
   --foreground: 210 40% 98%;            /* slate-50 */
-  --color-main: orange;
+  --color-main: #FFA726;
   --card: 0 0% 0%;                  /*222 47% 15%*/
   --card-foreground: 222 47% 91%;       /* very dark desaturated blue*/
 
