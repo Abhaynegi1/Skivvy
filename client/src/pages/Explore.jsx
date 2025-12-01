@@ -1,21 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import {
-  Funnel,
-  Search,
-  Star,
-  Clock,
-  Filter,
-  SortAsc,
-  SortDesc,
-  X,
-  Home,
-  BookOpen,
-  User,
-  MapPin,
-  ChevronDown,
-} from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
-import People from "./People";
+import { Funnel, BookOpen, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { authAPI } from "../utils/api";
 
@@ -68,16 +53,44 @@ const Explore = () => {
     return sorted;
   }, [profiles, sortBy, sortOrder]);
 
-  // Load current user (to hide their own card)
+  // Load current user (to hide their own card) and react to auth changes
   useEffect(() => {
-    (async () => {
+    const loadCurrentUser = async () => {
       try {
         if (authAPI.isAuthenticated()) {
           const resp = await authAPI.getProfile();
           if (resp?.success) setCurrentUser(resp.user);
+          else setCurrentUser(null);
+        } else {
+          setCurrentUser(null);
         }
-      } catch {}
-    })();
+      } catch (err) {
+        setCurrentUser(null);
+      }
+    };
+
+    // initial load
+    loadCurrentUser();
+
+    // When login/signup sets localStorage or emits custom events, update current user immediately
+    const onStorage = () => loadCurrentUser();
+    const onUserUpdated = (e) => {
+      const payload = e?.detail;
+      if (payload) {
+        // updated user payload may be shorthand; ensure we set the current user correctly
+        setCurrentUser(payload);
+      } else {
+        loadCurrentUser();
+      }
+    };
+
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('user-updated', onUserUpdated);
+
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('user-updated', onUserUpdated);
+    };
   }, []);
 
   // Exclude current user from list
@@ -432,7 +445,7 @@ const Explore = () => {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleGotoPeople(profile); }}
-                    className="bg-card/70 backdrop:blue-lg rounded-3xl shadow-sm  p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-card/70 backdrop:blur-lg rounded-3xl shadow-sm  p-6 hover:shadow-md transition-shadow cursor-pointer"
                     aria-label={`Open ${profile.name}'s profile`}
                   >
                     <div className="flex items-start gap-4">

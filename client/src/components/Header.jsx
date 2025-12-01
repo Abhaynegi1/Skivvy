@@ -52,40 +52,67 @@ const Header = () => {
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  // 🔒 Auth check
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setIsAuthenticated(false);
-        setUser(null);
-        localStorage.removeItem("user");
-        return;
-      }
+  // 🔒 Auth check — extracted into a reusable function so we can re-check when localStorage changes
+  const checkAuthStatus = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setIsAuthenticated(false);
+      setUser(null);
+      localStorage.removeItem("user");
+      return;
+    }
 
-      setLoading(true);
-      try {
-        const response = await authAPI.getProfile();
-        if (response.unauthorized || !response.success) {
-          setIsAuthenticated(false);
-          setUser(null);
-          authAPI.logout();
-        } else if (response.success) {
-          setIsAuthenticated(true);
-          setUser(response.user);
-          localStorage.setItem("user", JSON.stringify(response.user));
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
+    setLoading(true);
+    try {
+      const response = await authAPI.getProfile();
+      if (response.unauthorized || !response.success) {
         setIsAuthenticated(false);
         setUser(null);
         authAPI.logout();
-      } finally {
-        setLoading(false);
+      } else if (response.success) {
+        setIsAuthenticated(true);
+        setUser(response.user);
+        localStorage.setItem("user", JSON.stringify(response.user));
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+      authAPI.logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // call the check once on mount and also re-run when storage events occur (login/signup in the same window dispatches a storage event)
+  useEffect(() => {
+    checkAuthStatus();
+
+    const onStorage = (event) => {
+      // when token/user/localStorage changes we want to refresh profile so header updates immediately
+      checkAuthStatus();
+    };
+
+    // Also listen for a custom user update event (authAPI.notifyUserUpdate) so updates like profile picture upload
+    // can update the header immediately without a full re-fetch.
+    const onUserUpdated = (e) => {
+      const newUser = e?.detail;
+      if (newUser) {
+        setUser(newUser);
+        setIsAuthenticated(true);
+      } else {
+        // fallback to checking auth status if no payload
+        checkAuthStatus();
       }
     };
 
-    checkAuthStatus();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("user-updated", onUserUpdated);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("user-updated", onUserUpdated);
+    };
   }, []);
 
   useEffect(() => {

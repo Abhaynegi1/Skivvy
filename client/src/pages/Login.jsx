@@ -37,6 +37,8 @@ const Login = () => {
         setFormData({ username: '', password: '' })
         // Trigger storage event to update header and fetch fresh profile data
         window.dispatchEvent(new Event('storage'))
+        // Also dispatch a custom 'user-updated' event (payload: user) so components can update immediately
+        try { window.dispatchEvent(new CustomEvent('user-updated', { detail: data.user })) } catch (e) {}
         // Redirect to profile page after successful login
         setTimeout(() => {
           navigate('/Profile')

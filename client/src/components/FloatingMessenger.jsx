@@ -16,10 +16,28 @@ const FloatingMessenger = () => {
 
   const API_BASE_URL = import.meta.env.PROD ? 'https://skivvy-backend.onrender.com' : 'http://localhost:5000';
 
-  // Get user once on mount
+  // Load current user on mount and listen for auth/user updates so messenger appears immediately after login/updates
   useEffect(() => {
-    const user = authAPI.getCurrentUser();
-    setMe(user);
+    const loadUser = () => setMe(authAPI.getCurrentUser());
+
+    // initial load
+    loadUser();
+
+    // when other parts of the app dispatch storage or user-updated events we should refresh the user
+    const onStorage = () => loadUser();
+    const onUserUpdated = (e) => {
+      const payload = e?.detail;
+      if (payload) setMe(payload);
+      else loadUser();
+    };
+
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('user-updated', onUserUpdated);
+
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('user-updated', onUserUpdated);
+    };
   }, []);
 
   useEffect(() => {
