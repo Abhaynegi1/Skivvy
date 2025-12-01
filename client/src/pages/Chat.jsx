@@ -216,7 +216,9 @@ const Chat = () => {
                 <div className="w-12 h-12 rounded-full bg-orange-200 overflow-hidden flex items-center justify-center">
                   {t.avatar ? (
                     <img
-                      src={`${API_BASE_URL}${t.avatar}`}
+                      src={t.avatar?.startsWith('http://') || t.avatar?.startsWith('https://') 
+                        ? t.avatar 
+                        : `${API_BASE_URL}${t.avatar}`}
                       alt={t.name}
                       className="w-full h-full object-cover"
                     />
@@ -247,7 +249,9 @@ const Chat = () => {
             <div className="w-10 h-10 rounded-full bg-orange-200 overflow-hidden flex items-center justify-center">
               {peer?.profile?.profileImage ? (
                 <img
-                  src={`${API_BASE_URL}${peer.profile.profileImage}`}
+                  src={peer.profile.profileImage.startsWith('http://') || peer.profile.profileImage.startsWith('https://') 
+                    ? peer.profile.profileImage 
+                    : `${API_BASE_URL}${peer.profile.profileImage}`}
                   alt={peer.displayName || peer.username}
                   className="w-full h-full object-cover"
                 />

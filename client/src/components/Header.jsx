@@ -32,7 +32,8 @@ const Header = () => {
   const getAvatarSrc = () => {
     const img = user?.profile?.profileImage;
     if (!img) return null;
-    return img.startsWith("http") ? img : `${API_BASE_URL}${img}`;
+    // Cloudinary URLs are full URLs, local paths need base URL
+    return img.startsWith("http://") || img.startsWith("https://") ? img : `${API_BASE_URL}${img}`;
   };
 
   // 🌙 Load theme from localStorage

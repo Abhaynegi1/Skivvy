@@ -166,7 +166,9 @@ const FloatingMessenger = () => {
                 >
                   <div className="w-10 h-10 rounded-full bg-orange-200 overflow-hidden flex items-center justify-center flex-shrink-0">
                     {t.peer?.profileImage ? (
-                      <img src={`${API_BASE_URL}${t.peer.profileImage}`} alt={t.peer?.displayName || t.peer?.username} className="w-full h-full object-cover" />
+                      <img src={t.peer.profileImage.startsWith('http://') || t.peer.profileImage.startsWith('https://') 
+                        ? t.peer.profileImage 
+                        : `${API_BASE_URL}${t.peer.profileImage}`} alt={t.peer?.displayName || t.peer?.username} className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-orange-700 text-xs font-semibold">
                         {(t.peer?.displayName || t.peer?.username || 'U').split(' ').map(n=>n[0]).join('').toUpperCase()}
@@ -202,7 +204,9 @@ const FloatingMessenger = () => {
         {threads?.slice(0,3).map((t, idx) => (
           <span key={t.id} className={`w-6 h-6 rounded-full overflow-hidden border-2 border-gray-900 -mr-2 ${idx===0?'ml-2':''}`}>
             {t.peer?.profileImage ? (
-              <img src={`${API_BASE_URL}${t.peer.profileImage}`} alt="avatar" className="w-full h-full object-cover" />
+              <img src={t.peer.profileImage.startsWith('http://') || t.peer.profileImage.startsWith('https://') 
+                ? t.peer.profileImage 
+                : `${API_BASE_URL}${t.peer.profileImage}`} alt="avatar" className="w-full h-full object-cover" />
             ) : (
               <span className="w-full h-full flex items-center justify-center text-[10px] bg-orange-200 text-orange-800 font-semibold">
                 {(t.peer?.displayName || t.peer?.username || 'U').slice(0,2).toUpperCase()}

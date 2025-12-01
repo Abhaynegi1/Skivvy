@@ -68,7 +68,9 @@ const UserProfile = () => {
           <div className="w-36 h-36 my-4 rounded-full bg-orange-100 flex items-center justify-center overflow-hidden ring-2 ring-orange-200">
             {user.profile?.profileImage ? (
               <img
-                src={`${API_BASE_URL}${user.profile.profileImage}`}
+                src={user.profile.profileImage.startsWith('http://') || user.profile.profileImage.startsWith('https://') 
+                  ? user.profile.profileImage 
+                  : `${API_BASE_URL}${user.profile.profileImage}`}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
@@ -177,7 +179,9 @@ const UserProfile = () => {
                   >
                     <div className="relative w-full aspect-square">
                       <img
-                        src={`${API_BASE_URL}${item.image}`}
+                        src={item.image?.startsWith('http://') || item.image?.startsWith('https://') 
+                          ? item.image 
+                          : `${API_BASE_URL}${item.image}`}
                         alt={item.caption || "Portfolio item"}
                         className="absolute inset-0 w-full h-full object-cover"
                       />

@@ -337,11 +337,9 @@ const Profile = () => {
               </div>
             ) : user.profile?.profileImage ? (
               <img
-                src={`${
-                  import.meta.env.PROD
-                    ? "https://skivvy-backend.onrender.com"
-                    : "http://localhost:5000"
-                }${user.profile.profileImage}`}
+                src={user.profile.profileImage.startsWith('http://') || user.profile.profileImage.startsWith('https://') 
+                  ? user.profile.profileImage 
+                  : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${user.profile.profileImage}`}
                 alt="Profile"
                 className="w-36 h-36 rounded-full object-cover shadow-md"
               />
@@ -541,11 +539,9 @@ const Profile = () => {
                       className="relative w-full aspect-square focus:outline-none"
                     >
                       <img
-                        src={`${
-                          import.meta.env.PROD
-                            ? "https://skivvy-backend.onrender.com"
-                            : "http://localhost:5000"
-                        }${item.image}`}
+                        src={item.image?.startsWith('http://') || item.image?.startsWith('https://') 
+                          ? item.image 
+                          : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${item.image}`}
                         alt={item.caption || "Portfolio item"}
                         className="absolute inset-0 w-full h-full object-cover"
                       />
@@ -803,11 +799,9 @@ const Profile = () => {
           >
             <div className="relative bg-black">
               <img
-                src={`${
-                  import.meta.env.PROD
-                    ? "https://skivvy-backend.onrender.com"
-                    : "http://localhost:5000"
-                }${lightboxItem.image}`}
+                src={lightboxItem.image?.startsWith('http://') || lightboxItem.image?.startsWith('https://') 
+                  ? lightboxItem.image 
+                  : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${lightboxItem.image}`}
                 alt={lightboxItem.caption || "Post"}
                 className="w-full max-h-[70vh] object-contain bg-black"
               />

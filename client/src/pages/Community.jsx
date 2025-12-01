@@ -166,7 +166,9 @@ const Community = () => {
                       <div className="w-10 h-10 rounded-full bg-card overflow-hidden flex items-center justify-center">
                         {post.user.profileImage ? (
                           <img
-                            src={`${API_BASE_URL}${post.user.profileImage}`}
+                            src={post.user.profileImage.startsWith('http://') || post.user.profileImage.startsWith('https://') 
+                              ? post.user.profileImage 
+                              : `${API_BASE_URL}${post.user.profileImage}`}
                             alt={post.user.username}
                             className="w-full h-full object-cover"
                           />
@@ -191,7 +193,9 @@ const Community = () => {
                   {/* Post Image */}
                   <div className="w-full bg-card">
                     <img
-                      src={`${API_BASE_URL}${post.image}`}
+                      src={post.image?.startsWith('http://') || post.image?.startsWith('https://') 
+                        ? post.image 
+                        : `${API_BASE_URL}${post.image}`}
                       alt={post.caption || 'Post'}
                       className="w-full object-contain max-h-96"
                     />
@@ -239,7 +243,9 @@ const Community = () => {
                               <div className="w-8 h-8 rounded-full bg-orange-200 overflow-hidden flex items-center justify-center flex-shrink-0">
                                 {comment.user.profileImage ? (
                                   <img
-                                    src={`${API_BASE_URL}${comment.user.profileImage}`}
+                                    src={comment.user.profileImage.startsWith('http://') || comment.user.profileImage.startsWith('https://') 
+                                      ? comment.user.profileImage 
+                                      : `${API_BASE_URL}${comment.user.profileImage}`}
                                     alt={comment.user.username}
                                     className="w-full h-full object-cover"
                                   />

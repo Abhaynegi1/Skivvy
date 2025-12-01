@@ -1,44 +1,49 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 const User = require('../models/User');
 const Post = require('../models/Post');
+const { deleteFromCloudinary } = require('../config/cloudinary');
 const router = express.Router();
 
-// Configure multer for profile picture uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/profile-pictures';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure multer with Cloudinary storage for profile pictures
+const profileStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'skivvy/profile-pictures',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { width: 500, height: 500, crop: 'limit' },
+      { quality: 'auto' },
+      { fetch_format: 'auto' }
+    ]
   }
 });
 
-// Configure multer for portfolio uploads
-const portfolioStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = 'uploads/portfolio';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'portfolio-' + uniqueSuffix + path.extname(file.originalname));
+// Configure multer with Cloudinary storage for portfolio
+const portfolioStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'skivvy/portfolio',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    transformation: [
+      { quality: 'auto' },
+      { fetch_format: 'auto' }
+    ]
   }
 });
 
 const upload = multer({
-  storage: storage,
+  storage: profileStorage,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
   },
@@ -50,7 +55,7 @@ const upload = multer({
     
     // Fallback to extension check
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = allowedTypes.test(file.originalname.toLowerCase());
     
     if (extname) {
       return cb(null, true);
@@ -71,7 +76,7 @@ const portfolioUpload = multer({
     }
     
     const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = allowedTypes.test(file.originalname.toLowerCase());
     
     if (extname) {
       return cb(null, true);
@@ -361,11 +366,11 @@ router.post('/profile/picture', verifyToken, upload.single('profilePicture'), as
       });
     }
 
-    console.log('Uploaded file:', {
+    console.log('Uploaded file to Cloudinary:', {
       originalname: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      filename: req.file.filename
+      url: req.file.path // Cloudinary URL
     });
 
     const user = await User.findById(req.userId);
@@ -377,22 +382,21 @@ router.post('/profile/picture', verifyToken, upload.single('profilePicture'), as
       });
     }
 
-    // Delete old profile picture if exists
+    // Delete old profile picture from Cloudinary if exists
     if (user.profile.profileImage) {
-      const oldImagePath = path.join('uploads/profile-pictures', path.basename(user.profile.profileImage));
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
+      await deleteFromCloudinary(user.profile.profileImage);
     }
 
-    // Update profile image path
-    user.profile.profileImage = `/uploads/profile-pictures/${req.file.filename}`;
+    // Update profile image with Cloudinary URL
+    // With CloudinaryStorage, the URL is in req.file.path or req.file.secure_url
+    const cloudinaryUrl = req.file.path || req.file.secure_url || req.file.url;
+    user.profile.profileImage = cloudinaryUrl;
     await user.save();
 
     res.json({
       success: true,
       message: 'Profile picture uploaded successfully',
-      profileImage: user.profile.profileImage
+      profileImage: cloudinaryUrl
     });
 
   } catch (error) {
@@ -439,9 +443,11 @@ router.post('/portfolio', verifyToken, portfolioUpload.single('portfolioImage'),
       });
     }
 
-    // Add portfolio item
+    // Add portfolio item with Cloudinary URL
+    // With CloudinaryStorage, the URL is in req.file.path or req.file.secure_url
+    const cloudinaryUrl = req.file.path || req.file.secure_url || req.file.url;
     const portfolioItem = {
-      image: `/uploads/portfolio/${req.file.filename}`,
+      image: cloudinaryUrl,
       caption: req.body.caption || ''
     };
 
@@ -451,7 +457,7 @@ router.post('/portfolio', verifyToken, portfolioUpload.single('portfolioImage'),
     // Create a post for the community feed
     const post = new Post({
       user: req.userId,
-      image: `/uploads/portfolio/${req.file.filename}`,
+      image: cloudinaryUrl,
       caption: req.body.caption || '',
       likes: [],
       comments: []
@@ -529,14 +535,11 @@ router.delete('/portfolio/:itemId', verifyToken, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Portfolio item not found' });
     }
 
-    // Delete file from disk if exists
+    // Delete file from Cloudinary if exists
     try {
-      const filePath = path.join('uploads/portfolio', path.basename(item.image));
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      await deleteFromCloudinary(item.image);
     } catch (e) {
-      console.warn('Failed to delete portfolio file:', e?.message);
+      console.warn('Failed to delete portfolio file from Cloudinary:', e?.message);
     }
 
     // Remove from array and save

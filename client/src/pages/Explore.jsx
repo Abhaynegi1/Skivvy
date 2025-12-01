@@ -125,7 +125,11 @@ const Explore = () => {
             bio: u.profile?.bio || '',
             skillsOffered: u.profile?.skillsOffered || [],
             skillsWantToLearn: u.profile?.skillsSeeking || [],
-            profileImage: u.profile?.profileImage ? `${API_BASE_URL}${u.profile.profileImage}` : null,
+            profileImage: u.profile?.profileImage 
+              ? (u.profile.profileImage.startsWith('http://') || u.profile.profileImage.startsWith('https://') 
+                  ? u.profile.profileImage 
+                  : `${API_BASE_URL}${u.profile.profileImage}`)
+              : null,
             username: u.username,
           }));
           setProfiles(normalized);
