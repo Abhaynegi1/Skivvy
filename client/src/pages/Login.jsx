@@ -55,10 +55,10 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-card flex items-center justify-center p-4">
+      <div className="bg-background rounded-2xl shadow-2xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-orange-600 mb-2">
+          <h1 className="text-3xl font-bold text-[--color-main] mb-2">
             Welcome Back
           </h1>
           <p className="text-gray-600">
@@ -77,7 +77,7 @@ const Login = () => {
               value={formData.username}
               onChange={handleInputChange}
               required
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
             />
           </div>
 
@@ -91,7 +91,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
             />
             <button
               type="button"
@@ -138,9 +138,9 @@ const Login = () => {
         </div>
 
         {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-600 text-center mb-2">Demo Credentials:</p>
-          <p className="text-xs text-gray-500 text-center">
+        <div className="mt-6 p-4 bg-background rounded-lg">
+          <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-2">Demo Credentials:</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
             Username: demo<br />
             Password: demo123
           </p>
