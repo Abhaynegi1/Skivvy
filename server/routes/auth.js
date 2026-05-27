@@ -136,6 +136,18 @@ router.post('/register', async (req, res) => {
 
   } catch (error) {
     console.error('Registration error:', error);
+
+    if (error.name === 'ValidationError') {
+      const validationMessage = Object.values(error.errors)
+        .map((item) => item.message)
+        .join('. ');
+
+      return res.status(400).json({
+        success: false,
+        message: validationMessage || 'Invalid registration data'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Server error during registration'

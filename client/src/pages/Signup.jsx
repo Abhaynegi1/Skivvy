@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Eye, EyeOff, User, Mail, Lock } from 'lucide-react'
 import { authAPI } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
+import { useToast } from '../components/Toast'
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -13,6 +14,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
+  const { show } = useToast()
 
   const handleInputChange = (e) => {
     setFormData({
@@ -34,6 +36,11 @@ const Signup = () => {
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         setMessage('Success! Account created successfully.')
+        show({
+          type: 'success',
+          title: 'Account created',
+          message: 'Welcome to Skivvy. Redirecting you now.'
+        })
         // Reset form
         setFormData({ username: '', email: '', password: '' })
         // Trigger storage event to update header and fetch fresh profile data
@@ -45,10 +52,22 @@ const Signup = () => {
           navigate('/Profile')
         }, 1500)
       } else {
-        setMessage(data.message)
+        const errorMessage = data.message || 'Registration failed. Please check your details.'
+        setMessage(errorMessage)
+        show({
+          type: 'error',
+          title: 'Signup failed',
+          message: errorMessage
+        })
       }
     } catch (error) {
-      setMessage('An error occurred. Please try again.')
+      const errorMessage = 'An error occurred. Please try again.'
+      setMessage(errorMessage)
+      show({
+        type: 'error',
+        title: 'Signup failed',
+        message: errorMessage
+      })
       console.error('Signup error:', error)
     } finally {
       setLoading(false)
@@ -56,10 +75,11 @@ const Signup = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7ed_0%,_#ffedd5_38%,_#fed7aa_100%)] flex items-center justify-center p-4">
+      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-8 shadow-[0_24px_80px_-32px_rgba(234,88,12,0.45)] backdrop-blur">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400" />
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-orange-600 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
             Join Skivvy
           </h1>
           <p className="text-gray-600">
@@ -78,6 +98,7 @@ const Signup = () => {
               value={formData.username}
               onChange={handleInputChange}
               required
+              autoComplete="username"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
             />
           </div>
@@ -92,6 +113,7 @@ const Signup = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
+              autoComplete="email"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
             />
           </div>
@@ -107,6 +129,7 @@ const Signup = () => {
               onChange={handleInputChange}
               required
               minLength={6}
+              autoComplete="new-password"
               className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
             />
             <button
@@ -140,7 +163,7 @@ const Signup = () => {
             disabled={loading}
             className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
 

@@ -318,292 +318,312 @@ const Profile = () => {
   }
 
   // Always show the profile page, but with completion prompts
+  const profileImageSrc = user.profile?.profileImage
+    ? user.profile.profileImage.startsWith('http://') || user.profile.profileImage.startsWith('https://')
+      ? user.profile.profileImage
+      : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${user.profile.profileImage}`
+    : null;
 
-  // Improved original grid layout
+  const portfolioImageSrc = (image) => {
+    if (!image) return '';
+    return image.startsWith('http://') || image.startsWith('https://')
+      ? image
+      : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${image}`;
+  };
+
   return (
-    <div className="bg-background min-h-screen p-4 gap-6 grid grid-cols-4 place-items-stretch mt-20">
-      {/* PROFILE CONTAINER - Left Sidebar */}
-      <div className="item1 bg-card row-span-5 rounded-3xl shadow-lg">
-        <div className="profile-container flex flex-col items-center justify-center p-4">
-          {/* Profile Picture */}
-          <div
-            className="w-36 h-36 my-6 rounded-full bg-orange-100 flex items-center justify-center cursor-pointer hover:bg-orange-200 transition-colors relative shadow-md"
-            onClick={() => setShowProfilePictureModal(true)}
-          >
-            {uploading ? (
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-orange-500 mx-auto mb-1"></div>
-                <span className="text-xs text-orange-600">Uploading...</span>
-              </div>
-            ) : user.profile?.profileImage ? (
-              <img
-                src={user.profile.profileImage.startsWith('http://') || user.profile.profileImage.startsWith('https://') 
-                  ? user.profile.profileImage 
-                  : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${user.profile.profileImage}`}
-                alt="Profile"
-                className="w-36 h-36 rounded-full object-cover shadow-md"
-              />
-            ) : (
-              <div className="text-center">
-                <User className="w-16 h-16 text-orange-600 mx-auto mb-2" />
-                <span className="text-sm text-orange-600 font-medium">
-                  Add Photo
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* User Info */}
-          <div className="text-center mb-4">
-            <h4 className="font-bold text-2xl text-text-primary">
-              {user.displayName || user.username}
-            </h4>
-            <p className="text-sm text-gray-600 mb-1">@{user.username}</p>
-            {user.profile?.location && (
-              <p className="text-sm text-gray-600 mt-2 flex items-center justify-center gap-1">
-                <MapPin className="w-4 h-4" />
-                {user.profile.location}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Skills Offered Section */}
-        <div className="skills-offered flex flex-col gap-3 p-4">
-          <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-            <PenTool className="w-5 h-5 text-orange-500" />
-            Skills Offered
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {(user.profile?.skillsOffered || []).map((skill, idx) => (
-              <span
-                key={idx}
-                className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm border border-orange-200"
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.16)_0%,_rgba(255,247,237,0.92)_34%,_#fff8ef_72%,_#fffdf9_100%)] pb-10 pt-24">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-5 rounded-[1.75rem] border border-white/70 bg-white/75 p-4 shadow-[0_18px_60px_-36px_rgba(251,146,60,0.32)] backdrop-blur md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5">
+              <button
+                onClick={() => setShowProfilePictureModal(true)}
+                className="group relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-[1.75rem] border border-orange-100 bg-orange-50 shadow-lg transition-transform hover:-translate-y-0.5 sm:h-36 sm:w-36"
               >
-                {skill}
-              </span>
-            ))}
-          </div>
-          <div className="text-center py-4 border-2 border-dashed border-orange-200 rounded-lg">
-            <p className="text-gray-500 mb-3 font-medium">
-              What can you teach others?
-            </p>
-            <button
-              onClick={() => setShowSkillsOffered(true)}
-              className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors"
-            >
-              {(user.profile?.skillsOffered || []).length > 0
-                ? "Edit Skills"
-                : "Add Skills"}
-            </button>
-          </div>
-        </div>
+                {uploading ? (
+                  <div className="text-center">
+                    <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-4 border-orange-200 border-t-orange-500" />
+                    <span className="text-xs font-medium text-orange-700">Uploading</span>
+                  </div>
+                ) : profileImageSrc ? (
+                  <img
+                    src={profileImageSrc}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <User className="mx-auto mb-2 h-14 w-14 text-orange-500" />
+                    <span className="text-sm font-semibold text-orange-700">Add Photo</span>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              </button>
 
-        {/* Skills Seeking Section */}
-        <div className="skills-seeking flex flex-col gap-3 p-4">
-          <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
-            <Book className="w-5 h-5 text-blue-500" />
-            Skills Seeking
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {(user.profile?.skillsSeeking || []).map((skill, idx) => (
-              <span
-                key={idx}
-                className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm border border-blue-200"
-              >
-                {skill}
-              </span>
-            ))}
-          </div>
-          <div className="text-center py-4 border-2 border-dashed border-blue-200 rounded-lg">
-            <p className="text-gray-500 mb-3 font-medium">
-              What do you want to learn?
-            </p>
-            <button
-              onClick={() => setShowSkillsSeeking(true)}
-              className="text-blue-600 hover:text-blue-700 font-medium px-4 py-2 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-            >
-              {(user.profile?.skillsSeeking || []).length > 0
-                ? "Edit Skills"
-                : "Add Skills"}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* SUMMARY CONTAINER - Top Right */}
-      <div className="item2 bg-card col-span-3 rounded-3xl shadow-lg p-4 self-start">
-        <h1 className="text-3xl font-bold text-text-primary mb-2">
-          Welcome to {user.displayName || user.username}'s Profile
-        </h1>
-
-        {isEditingBioTop ? (
-          <div>
-            <textarea
-              value={bioDraftTop}
-              onChange={(e) => setBioDraftTop(e.target.value.slice(0, 150))}
-              placeholder="Tell others about yourself..."
-              className="w-full p-3 rounded-lg bg-background text-text-primary border border-border focus:ring-2 focus:ring-[var(--color-main)] focus:border-[var(--color-main)] outline-none placeholder:text-text-secondary"
-              rows={3}
-              maxLength={150}
-            />
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-text-secondary">
-                {bioDraftTop.length}/150 characters
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={cancelBioEditTop}
-                  className="px-4 py-2 text-text-primary border border-border rounded-lg hover:bg-muted transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveBioEditTop}
-                  disabled={savingBio}
-                  className="px-4 py-2 bg-[var(--color-main)] text-black rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
-                >
-                  {savingBio ? "Saving..." : "Save Bio"}
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : user.profile?.bio ? (
-          <div className="flex items-start justify-between">
-            <p className="text-lg text-text-primary leading-relaxed flex-1">
-              {user.profile.bio}
-            </p>
-            <button
-              onClick={startBioEditTop}
-              className="ml-4 text-[var(--color-main)] hover:text-orange-700 font-medium px-4 py-2 border border-[var(--color-main)]/30 rounded-xl hover:bg-[var(--color-main)]/10 transition-colors flex items-center gap-2"
-            >
-              <Edit3 className="w-4 h-4" />
-              Edit
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 py-2">
-            <p className="text-text-secondary text-base flex-1">
-              Tell others about yourself
-            </p>
-            <button
-              onClick={startBioEditTop}
-              className="text-[var(--color-main)] hover:text-orange-700 font-medium px-4 py-2 border border-[var(--color-main)]/30 rounded-lg hover:bg-[var(--color-main)]/10 transition-colors"
-            >
-              Add Bio
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* FEATURED WORK - Middle Right */}
-      <div className="item3 bg-card rounded-3xl col-span-3 row-span-2 shadow-lg">
-        <div className="p-6 flex flex-col h-full">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-3xl font-bold text-gray-800 mb-2">
-                Featured Work
-              </h3>
-              <div className="flex items-center gap-3">
-                <Camera className="w-5 h-5 text-gray-400" />
-                <p className="text-gray-500 text-base">
-                  Showcase your best work
+              <div className="max-w-xl">
+                <p className="mb-2 inline-flex rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600">
+                  Profile overview
+                </p>
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                  {user.displayName || user.username}
+                </h1>
+                <p className="mt-1 text-sm font-medium text-gray-500">
+                  @{user.username}
+                  {user.profile?.location && (
+                    <span className="ml-3 inline-flex items-center gap-1 text-gray-500">
+                      <MapPin className="h-4 w-4" />
+                      {user.profile.location}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => navigate("/portfolio/upload")}
-              className="text-orange-600 hover:text-orange-700 font-medium px-4 py-2 border border-orange-300 rounded-lg hover:bg-orange-50 transition-colors flex items-center gap-2"
-            >
-              <Camera className="w-4 h-4" />
-              Add Portfolio
-            </button>
-          </div>
 
-          {/* Portfolio Items Grid */}
-          {user.portfolio && user.portfolio.length > 0 ? (
-            <div className="flex-1 overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4">
-                {user.portfolio.map((item, index) => (
-                  <div
-                    key={item._id || index}
-                    className="relative bg-orange-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setLightboxItem(item)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") setLightboxItem(item);
-                      }}
-                      className="relative w-full aspect-square focus:outline-none"
-                    >
-                      <img
-                        src={item.image?.startsWith('http://') || item.image?.startsWith('https://') 
-                          ? item.image 
-                          : `${import.meta.env.PROD ? "https://skivvy-backend.onrender.com" : "http://localhost:5000"}${item.image}`}
-                        alt={item.caption || "Portfolio item"}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                      {/* Actions menu */}
-                      <div className="absolute top-2 right-2">
-                        <button
-                          onClick={() =>
-                            setMenuOpenId(
-                              menuOpenId === (item._id || index)
-                                ? null
-                                : item._id || index
-                            )
-                          }
-                          className="p-2 rounded-full bg-white/90 hover:bg-white shadow border border-gray-200"
-                          aria-label="Open post menu"
-                        >
-                          <MoreVertical className="w-4 h-4 text-gray-700" />
-                        </button>
-                        {menuOpenId === (item._id || index) && (
-                          <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                            <button
-                              onClick={() => {
-                                setMenuOpenId(null);
-                                startEditCaption(item);
-                              }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                              Edit caption
-                            </button>
-                            <button
-                              onClick={() => requestDeleteItem(item)}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                              Delete post
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {item.caption && (
-                      <div className="p-4 border-t border-orange-100 bg-white">
-                        <p className="text-base font-medium text-gray-800">
-                          {item.caption}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:min-w-[290px]">
+              <div className="rounded-2xl border border-orange-100 bg-white px-3 py-2.5 text-center shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Offered</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">{(user.profile?.skillsOffered || []).length}</p>
+              </div>
+              <div className="rounded-2xl border border-blue-100 bg-white px-3 py-2.5 text-center shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Seeking</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">{(user.profile?.skillsSeeking || []).length}</p>
+              </div>
+              <div className="rounded-2xl border border-amber-100 bg-white px-3 py-2.5 text-center shadow-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Work</p>
+                <p className="mt-1 text-xl font-bold text-gray-900">{user.portfolio?.length || 0}</p>
               </div>
             </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
-              <Camera className="w-16 h-16 text-gray-300 mb-4" />
-              <p className="text-gray-500 mb-4">No portfolio items yet</p>
-              <p className="text-gray-400 text-sm">
-                Click "Add Portfolio" to showcase your work
-              </p>
-            </div>
-          )}
+          </div>
         </div>
+
+        <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:gap-6">
+          <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
+            <section className="rounded-[1.75rem] border border-white/70 bg-white/85 p-4 shadow-[0_18px_60px_-36px_rgba(251,146,60,0.45)] backdrop-blur">
+              <div className="mb-4">
+                <h2 className="text-base font-bold text-gray-900">About</h2>
+                <p className="mt-1 text-xs text-gray-500">A quick snapshot of who you are.</p>
+              </div>
+
+              {isEditingBioTop ? (
+                <div>
+                  <textarea
+                    value={bioDraftTop}
+                    onChange={(e) => setBioDraftTop(e.target.value.slice(0, 150))}
+                    placeholder="Tell others about yourself..."
+                    className="min-h-[110px] w-full rounded-2xl border border-orange-100 bg-orange-50/40 p-3.5 text-sm text-gray-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-200"
+                    rows={4}
+                    maxLength={150}
+                  />
+                  <div className="mt-3 flex items-center justify-between gap-3">
+                    <p className="text-xs text-gray-500">{bioDraftTop.length}/150 characters</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={cancelBioEditTop}
+                        className="rounded-xl border border-gray-200 px-3.5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={saveBioEditTop}
+                        disabled={savingBio}
+                        className="rounded-xl bg-orange-500 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:opacity-50"
+                      >
+                        {savingBio ? "Saving..." : "Save Bio"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : user.profile?.bio ? (
+                <div className="space-y-3">
+                  <p className="text-sm leading-6 text-gray-700">{user.profile.bio}</p>
+                  <button
+                    onClick={startBioEditTop}
+                    className="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-3.5 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                    Edit Bio
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 rounded-2xl border border-dashed border-orange-200 bg-orange-50/30 p-4 text-center">
+                  <p className="text-sm text-gray-600">Tell others about yourself</p>
+                  <button
+                    onClick={startBioEditTop}
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-orange-600"
+                  >
+                    Add Bio
+                  </button>
+                </div>
+              )}
+            </section>
+
+            <section className="rounded-[1.75rem] border border-white/70 bg-white/85 p-4 shadow-[0_18px_60px_-36px_rgba(251,146,60,0.45)] backdrop-blur">
+              <div className="mb-3.5 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">Skills Offered</h2>
+                  <p className="text-xs text-gray-500">What you can teach.</p>
+                </div>
+                <PenTool className="h-4.5 w-4.5 text-orange-500" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(user.profile?.skillsOffered || []).map((skill, idx) => (
+                  <span
+                    key={idx}
+                    className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-xs font-medium text-orange-700"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 rounded-2xl border border-dashed border-orange-200 bg-orange-50/30 p-3.5 text-center">
+                <p className="mb-3 text-sm font-medium text-gray-600">What can you teach others?</p>
+                <button
+                  onClick={() => setShowSkillsOffered(true)}
+                  className="rounded-xl border border-orange-300 px-3.5 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+                >
+                  {(user.profile?.skillsOffered || []).length > 0 ? "Edit Skills" : "Add Skills"}
+                </button>
+              </div>
+            </section>
+
+            <section className="rounded-[1.75rem] border border-white/70 bg-white/85 p-4 shadow-[0_18px_60px_-36px_rgba(59,130,246,0.28)] backdrop-blur">
+              <div className="mb-3.5 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">Skills Seeking</h2>
+                  <p className="text-xs text-gray-500">What you want to learn.</p>
+                </div>
+                <Book className="h-4.5 w-4.5 text-blue-500" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(user.profile?.skillsSeeking || []).map((skill, idx) => (
+                  <span
+                    key={idx}
+                    className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 rounded-2xl border border-dashed border-blue-200 bg-blue-50/30 p-3.5 text-center">
+                <p className="mb-3 text-sm font-medium text-gray-600">What do you want to learn?</p>
+                <button
+                  onClick={() => setShowSkillsSeeking(true)}
+                  className="rounded-xl border border-blue-300 px-3.5 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                >
+                  {(user.profile?.skillsSeeking || []).length > 0 ? "Edit Skills" : "Add Skills"}
+                </button>
+              </div>
+            </section>
+          </aside>
+
+          <main className="space-y-5">
+            <section className="rounded-[1.75rem] border border-white/70 bg-white/90 p-4 shadow-[0_18px_60px_-36px_rgba(251,146,60,0.45)] backdrop-blur md:p-5">
+              <div className="flex flex-col gap-3.5 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">Featured Work</h3>
+                  <p className="mt-1 flex items-center gap-2 text-xs text-gray-500 sm:text-sm">
+                    <Camera className="h-3.5 w-3.5" />
+                    Showcase your best work.
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate("/portfolio/upload")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-orange-300 bg-orange-50 px-3.5 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                  Add Portfolio
+                </button>
+              </div>
+
+              {user.portfolio && user.portfolio.length > 0 ? (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {user.portfolio.map((item, index) => (
+                    <div
+                      key={item._id || index}
+                      className="group overflow-hidden rounded-[1.5rem] border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setLightboxItem(item)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") setLightboxItem(item);
+                        }}
+                        className="relative aspect-[16/11] cursor-pointer overflow-hidden bg-orange-50 focus:outline-none"
+                      >
+                        <img
+                          src={portfolioImageSrc(item.image)}
+                          alt={item.caption || "Portfolio item"}
+                          className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
+                        <div className="absolute right-3 top-3">
+                          <button
+                            onClick={() =>
+                              setMenuOpenId(
+                                menuOpenId === (item._id || index) ? null : item._id || index
+                              )
+                            }
+                            className="rounded-full border border-white/70 bg-white/95 p-2 shadow-lg transition hover:bg-white"
+                            aria-label="Open post menu"
+                          >
+                            <MoreVertical className="h-4 w-4 text-gray-700" />
+                          </button>
+                          {menuOpenId === (item._id || index) && (
+                            <div className="absolute right-0 mt-2 w-40 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                              <button
+                                onClick={() => {
+                                  setMenuOpenId(null);
+                                  startEditCaption(item);
+                                }}
+                                className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-gray-700 transition hover:bg-gray-50"
+                              >
+                                <Edit3 className="h-4 w-4" />
+                                Edit caption
+                              </button>
+                              <button
+                                onClick={() => requestDeleteItem(item)}
+                                className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-red-600 transition hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Delete post
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {item.caption && (
+                        <div className="border-t border-gray-100 p-3.5">
+                          <p className="line-clamp-2 text-sm font-medium leading-5 text-gray-800">
+                            {item.caption}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-6 flex min-h-[280px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-gray-200 bg-gray-50/70 px-6 text-center">
+                  <div className="mb-4 rounded-full bg-white p-4 shadow-sm">
+                    <Camera className="h-10 w-10 text-gray-300" />
+                  </div>
+                  <p className="text-base font-semibold text-gray-700">No portfolio items yet</p>
+                  <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500">
+                    Add a few projects to make the page feel complete and give visitors something concrete to click.
+                  </p>
+                  <button
+                    onClick={() => navigate("/portfolio/upload")}
+                    className="mt-5 rounded-xl bg-orange-500 px-4.5 py-2.5 text-sm font-semibold text-white transition hover:bg-orange-600"
+                  >
+                    Add Portfolio
+                  </button>
+                </div>
+              )}
+            </section>
+          </main>
+        </div>
+
       </div>
 
       {/* Edit Profile Modal */}
