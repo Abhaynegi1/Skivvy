@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, LogOut, Settings, Menu, X, Sun, Moon } from "lucide-react";
 import { authAPI } from "../utils/api";
+import {motion} from 'framer-motion';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -205,7 +206,11 @@ const Header = () => {
               </button>
 
               {showProfileDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg border border-border py-2 z-50">
+                <motion.div
+                  initial={{opacity: 0, y:-10}}
+                  animate={{opacity:1 ,y:0}}
+                  transition={{duration: 0.2}}>
+                <div className="absolute right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-border py-2 z-50">
                   <button
                     onClick={() => {
                       navigate("/Profile");
@@ -224,6 +229,7 @@ const Header = () => {
                     Logout
                   </button>
                 </div>
+                </motion.div>
               )}
             </div>
           ) : (

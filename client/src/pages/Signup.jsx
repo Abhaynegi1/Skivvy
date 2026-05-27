@@ -75,9 +75,14 @@ const Signup = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7ed_0%,_#ffedd5_38%,_#fed7aa_100%)] flex items-center justify-center p-4">
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-8 shadow-[0_24px_80px_-32px_rgba(234,88,12,0.45)] backdrop-blur">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400" />
+=======
+    <div className="min-h-screen bg-card flex items-center justify-center p-4">
+      <div className="bg-background rounded-2xl shadow-2xl p-8 w-full max-w-md">
+>>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
             Join Skivvy
@@ -98,8 +103,12 @@ const Signup = () => {
               value={formData.username}
               onChange={handleInputChange}
               required
+<<<<<<< HEAD
               autoComplete="username"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+=======
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
+>>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
           </div>
 
@@ -113,8 +122,12 @@ const Signup = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
+<<<<<<< HEAD
               autoComplete="email"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+=======
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
+>>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
           </div>
 
@@ -129,8 +142,12 @@ const Signup = () => {
               onChange={handleInputChange}
               required
               minLength={6}
+<<<<<<< HEAD
               autoComplete="new-password"
               className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+=======
+              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
+>>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
             <button
               type="button"
