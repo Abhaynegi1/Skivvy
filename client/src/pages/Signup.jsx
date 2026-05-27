@@ -32,7 +32,6 @@ const Signup = () => {
       const data = await authAPI.register(formData)
 
       if (data.success) {
-        // Store token in localStorage
         localStorage.setItem('token', data.token)
         localStorage.setItem('user', JSON.stringify(data.user))
         setMessage('Success! Account created successfully.')
@@ -41,13 +40,11 @@ const Signup = () => {
           title: 'Account created',
           message: 'Welcome to Skivvy. Redirecting you now.'
         })
-        // Reset form
         setFormData({ username: '', email: '', password: '' })
-        // Trigger storage event to update header and fetch fresh profile data
         window.dispatchEvent(new Event('storage'))
-        // Also dispatch a custom 'user-updated' event (payload: user) so components can update immediately
-        try { window.dispatchEvent(new CustomEvent('user-updated', { detail: data.user })) } catch (e) {}
-        // Redirect to profile page after successful signup
+        try { window.dispatchEvent(new CustomEvent('user-updated', { detail: data.user })) } catch {
+          console.warn('Failed to dispatch user-updated event after signup')
+        }
         setTimeout(() => {
           navigate('/Profile')
         }, 1500)
@@ -75,14 +72,8 @@ const Signup = () => {
   }
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#fff7ed_0%,_#ffedd5_38%,_#fed7aa_100%)] flex items-center justify-center p-4">
-      <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/70 bg-white/90 p-8 shadow-[0_24px_80px_-32px_rgba(234,88,12,0.45)] backdrop-blur">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 via-amber-400 to-rose-400" />
-=======
     <div className="min-h-screen bg-card flex items-center justify-center p-4">
       <div className="bg-background rounded-2xl shadow-2xl p-8 w-full max-w-md">
->>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
             Join Skivvy
@@ -93,7 +84,6 @@ const Signup = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username Field */}
           <div className="relative">
             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -103,16 +93,11 @@ const Signup = () => {
               value={formData.username}
               onChange={handleInputChange}
               required
-<<<<<<< HEAD
               autoComplete="username"
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
-=======
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
->>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
           </div>
 
-          {/* Email Field */}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -122,16 +107,10 @@ const Signup = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-<<<<<<< HEAD
-              autoComplete="email"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
-=======
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
->>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
           </div>
 
-          {/* Password Field */}
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -142,12 +121,7 @@ const Signup = () => {
               onChange={handleInputChange}
               required
               minLength={6}
-<<<<<<< HEAD
-              autoComplete="new-password"
-              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
-=======
               className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all bg-white/60 dark:bg-black/70"
->>>>>>> 249afa5ced7a6307bcaf8dcb7d2363498f337aad
             />
             <button
               type="button"
@@ -158,23 +132,20 @@ const Signup = () => {
             </button>
           </div>
 
-          {/* Password Requirements */}
           <div className="text-xs text-gray-500">
             Password must be at least 6 characters long
           </div>
 
-          {/* Message Display */}
           {message && (
             <div className={`p-3 rounded-lg text-sm ${
-              message.includes('Success') 
-                ? 'bg-green-100 text-green-700 border border-green-200' 
+              message.includes('Success')
+                ? 'bg-green-100 text-green-700 border border-green-200'
                 : 'bg-red-100 text-red-700 border border-red-200'
             }`}>
               {message}
             </div>
           )}
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -184,7 +155,6 @@ const Signup = () => {
           </button>
         </form>
 
-        {/* Link to Login */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Already have an account?
@@ -198,7 +168,6 @@ const Signup = () => {
           </p>
         </div>
 
-        {/* Terms and Privacy */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
             By signing up, you agree to our{' '}
